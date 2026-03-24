@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class UnidadMedida extends Model
+{
+    use HasFactory;
+
+    protected $table = 'unidad_medida';
+    protected $primaryKey = 'id_unidad_medida';
+    public $timestamps = true;
+
+    protected $fillable = [
+        'nombre',
+        'abreviatura',
+        'tipo',
+        'activo',
+    ];
+
+    protected $casts = [
+        'activo' => 'boolean',
+    ];
+}

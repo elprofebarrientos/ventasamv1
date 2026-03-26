@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\MarcaResource\Pages;
-use App\Models\Marca;
+use App\Filament\Resources\AtributoResource\Pages;
+use App\Models\Atributo;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
@@ -19,19 +20,19 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class MarcaResource extends Resource
+class AtributoResource extends Resource
 {
-    protected static ?string $model = Marca::class;
+    protected static ?string $model = Atributo::class;
 
-    protected static ?string $navigationLabel = 'Marcas';
+    protected static ?string $navigationLabel = 'Atributos';
 
-    protected static ?string $label = 'Marca';
+    protected static ?string $label = 'Atributo';
 
-    protected static ?string $pluralLabel = 'Marcas';
+    protected static ?string $pluralLabel = 'Atributos';
 
     public static function getNavigationIcon(): ?string
     {
-        return 'heroicon-s-bookmark';
+        return 'heroicon-s-queue-list';
     }
 
     public static function form(Schema $schema): Schema
@@ -41,14 +42,17 @@ class MarcaResource extends Resource
                 Forms\Components\TextInput::make('nombre')
                     ->label('Nombre')
                     ->required()
-                    ->maxLength(100),
-                Forms\Components\Textarea::make('descripcion')
-                    ->label('Descripción')
-                    ->maxLength(255)
-                    ->rows(3),
-                Forms\Components\Toggle::make('activo')
-                    ->label('Activo')
-                    ->default(true),
+                    ->maxLength(100)
+                    ->unique('atributos', 'nombre', ignoreRecord: true),
+                Forms\Components\Select::make('tipo_visual')
+                    ->label('Tipo Visual')
+                    ->options([
+                        'TEXTO' => 'Texto',
+                        'COLOR' => 'Color',
+                        'IMAGEN' => 'Imagen',
+                    ])
+                    ->required()
+                    ->default('TEXTO'),
             ]);
     }
 
@@ -56,19 +60,21 @@ class MarcaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id_marca')
+                Tables\Columns\TextColumn::make('id_atributo')
                     ->label('ID')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('nombre')
                     ->label('Nombre')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('descripcion')
-                    ->label('Descripción')
-                    ->searchable()
-                    ->limit(50),
-                Tables\Columns\BooleanColumn::make('activo')
-                    ->label('Activo'),
+                Tables\Columns\TextColumn::make('tipo_visual')
+                    ->label('Tipo Visual')
+                    ->badge()
+                    ->colors([
+                        'primary' => 'TEXTO',
+                        'success' => 'COLOR',
+                        'warning' => 'IMAGEN',
+                    ]),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Creado')
                     ->dateTime()
@@ -76,9 +82,6 @@ class MarcaResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\Filter::make('activo')
-                    ->label('Solo activas')
-                    ->query(fn ($query) => $query->where('activo', true)),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
@@ -95,18 +98,18 @@ class MarcaResource extends Resource
                 ]),
             ])
             ->headerActions([
-                \Filament\Actions\CreateAction::make()
+                CreateAction::make()
                     ->modal()
-                    ->label('Nueva Marca'),
+                    ->label('Nuevo Atributo'),
             ]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMarcas::route('/'),
-            'create' => Pages\CreateMarca::route('/create'),
-            'edit' => Pages\EditMarca::route('/{record}/edit'),
+            'index' => Pages\ListAtributos::route('/'),
+            'create' => Pages\CreateAtributo::route('/create'),
+            'edit' => Pages\EditAtributo::route('/{record}/edit'),
         ];
     }
 }

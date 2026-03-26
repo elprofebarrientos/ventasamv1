@@ -8,7 +8,11 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Schemas\Schema;
@@ -95,14 +99,19 @@ class UnidadMedidaResource extends Resource
                 Tables\Filters\Filter::make('activo')
                     ->label('Solo activas')
                     ->query(fn ($query) => $query->where('activo', true)),
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 EditAction::make(),
                 DeleteAction::make(),
+                ForceDeleteAction::make(),
+                RestoreAction::make(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ])
             ->headerActions([

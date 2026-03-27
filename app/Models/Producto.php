@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Producto extends Model
@@ -50,6 +51,10 @@ class Producto extends Model
                 $producto->slug = \Str::slug($producto->nombre);
             }
         });
+
+        static::deleting(function (Producto $producto) {
+            $producto->variantes()->forceDelete();
+        });
     }
 
     /**
@@ -74,5 +79,13 @@ class Producto extends Model
     public function unidadMedida(): BelongsTo
     {
         return $this->belongsTo(UnidadMedida::class, 'id_unidad_medida', 'id_unidad_medida');
+    }
+
+    /**
+     * Get the variantes for the producto.
+     */
+    public function variantes(): HasMany
+    {
+        return $this->hasMany(ProductoVariante::class, 'id_producto', 'id_producto');
     }
 }

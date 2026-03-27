@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AtributoResource\Pages;
+use App\Filament\Resources\AtributoResource\RelationManagers;
 use App\Models\Atributo;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
@@ -85,7 +86,8 @@ class AtributoResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                EditAction::make(),
+                EditAction::make()
+                    ->label('Agregar Valores'),
                 DeleteAction::make(),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),
@@ -102,6 +104,13 @@ class AtributoResource extends Resource
                     ->modal()
                     ->label('Nuevo Atributo'),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\ValoresRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductoResource\Pages;
+use App\Filament\Resources\ProductoResource\RelationManagers;
 use App\Models\Producto;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
@@ -163,6 +164,13 @@ class ProductoResource extends Resource
                     ->modal()
                     ->label('Nuevo Producto'),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\VariantesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

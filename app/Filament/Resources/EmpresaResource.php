@@ -180,8 +180,7 @@ class EmpresaResource extends Resource
                                 Forms\Components\TextInput::make('codigo')
                                     ->label('Código')
                                     ->required()
-                                    ->maxLength(50)
-                                    ->unique('bodega', 'codigo', ignoreRecord: true),
+                                    ->maxLength(50),
                                 Forms\Components\TextInput::make('responsable')
                                     ->label('Responsable')
                                     ->maxLength(255),
@@ -194,7 +193,7 @@ class EmpresaResource extends Resource
                                     ->required()
                                     ->default('activa'),
                             ])
-                            ->columns(2)
+                            ->columns(4)
                             ->minItems(1)
                             ->addActionLabel('Agregar Bodega')
                             ->deleteAction(fn ($action) => $action->requiresConfirmation())
@@ -227,9 +226,7 @@ class EmpresaResource extends Resource
                 Tables\Columns\TextColumn::make('nombre_comercial')
                     ->label('Nombre Comercial')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('ciudad_municipio')
-                    ->label('Ciudad')
-                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('regimen_fiscal')
                     ->label('Régimen Fiscal')
                     ->badge()
@@ -273,7 +270,8 @@ class EmpresaResource extends Resource
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->label('Nueva Empresa'),
+                    ->label('Nueva Empresa')
+                    ->visible(fn () => !Empresa::exists()),
             ]);
     }
 

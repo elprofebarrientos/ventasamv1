@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id('id_bodega');
             $table->unsignedBigInteger('id_sucursal');
             $table->string('nombre', 255);
-            $table->string('codigo', 50)->unique();
+            $table->string('codigo', 50);
             $table->string('responsable', 255)->nullable();
             $table->enum('estado', ['activa', 'inactiva'])->default('activa');
             $table->timestamps();

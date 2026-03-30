@@ -7,6 +7,9 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Database\Seeders\UnidadMedidaSeeder;
 use Database\Seeders\MarcaSeeder;
+use Database\Seeders\CountrySeeder;
+use Database\Seeders\DepartmentSeeder;
+use Database\Seeders\CitySeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,6 +28,9 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            CountrySeeder::class,
+            DepartmentSeeder::class,
+            CitySeeder::class,
             UnidadMedidaSeeder::class,
             MarcaSeeder::class,
         ]);

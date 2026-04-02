@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CompraResource\Pages;
+use App\Filament\Resources\CompraResource\RelationManagers;
 use App\Filament\Resources\CompraResource\Schemas\CompraForm;
 use App\Models\Compra;
 use Filament\Actions\BulkActionGroup;
@@ -73,6 +74,12 @@ class CompraResource extends Resource
                         'pagado' => 'success',
                         'parcial' => 'info',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'pendiente' => 'Pendiente',
+                        'pagado' => 'Pagada Total',
+                        'parcial' => 'Pago Parcial',
+                        default => $state,
                     }),
                 Tables\Columns\TextColumn::make('monto_pagado')
                     ->label('Monto Pagado')
@@ -108,6 +115,13 @@ class CompraResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\AbonosRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

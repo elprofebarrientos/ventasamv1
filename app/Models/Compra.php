@@ -64,4 +64,25 @@ class Compra extends Model
     {
         return $this->hasMany(Abono::class, 'id_compra', 'id_compra');
     }
+
+    /**
+     * Actualiza el estado de la compra basado en los abonos
+     */
+    public function actualizarEstado(): void
+    {
+        $totalAbonado = $this->abonos()->sum('monto');
+        $saldoPendiente = $this->total_neto_pagar - $totalAbonado;
+
+        if ($totalAbonado == 0) {
+            $this->estado = 'pendiente';
+        } elseif ($saldoPendiente > 0) {
+            $this->estado = 'parcial';
+        } else {
+            $this->estado = 'pagado';
+        }
+
+        $this->monto_pagado = $totalAbonado;
+        $this->monto_restante = $saldoPendiente;
+        $this->save();
+    }
 }

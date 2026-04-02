@@ -147,7 +147,8 @@ class ProductoResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                EditAction::make(),
+                EditAction::make()
+                    ->label('Agregar Variante'),
                 DeleteAction::make(),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),

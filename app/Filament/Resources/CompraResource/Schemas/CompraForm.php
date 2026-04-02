@@ -4,6 +4,7 @@ namespace App\Filament\Resources\CompraResource\Schemas;
 
 use App\Models\Compra;
 use App\Models\Producto;
+use App\Models\ProductoVariante;
 use App\Models\Proveedor;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
@@ -58,9 +59,9 @@ class CompraForm
                         ->label('')
                         ->relationship('detalles')
                         ->schema([
-                            Select::make('id_producto')
-                                ->label('Producto')
-                                ->options(fn ($get) => static::getAvailableProducts($get))
+                            Select::make('id_variante')
+                                ->label('Producto / Variante')
+                                ->options(fn ($get) => static::getAvailableVariants($get))
                                 ->searchable()
                                 ->required()
                                 ->disabled(fn ($get) => static::hasAbonos($get)),
@@ -168,38 +169,60 @@ class CompraForm
     }
 
     /**
-     * Get available products excluding those already added to this purchase
+     * Get available variants excluding those already added to this purchase
      */
-    private static function getAvailableProducts(Get $get): \Illuminate\Support\Collection
+    private static function getAvailableVariants(Get $get): \Illuminate\Support\Collection
     {
         $recordId = $get('id_compra');
 
-        $products = Producto::query()->orderBy('nombre')->get();
+        // Get all variants with their product and attribute values
+        $variants = ProductoVariante::with(['producto', 'valores.atributo'])
+            ->where('activo', true)
+            ->get();
 
-        // Get the current product being edited in this row (if any)
-        $currentProductId = $get('id_producto');
+        // Get the current variant being edited in this row (if any)
+        $currentVariantId = $get('id_variante');
 
         if ($recordId) {
             $compra = Compra::find($recordId);
 
             if ($compra && $compra->detalles()->count() > 0) {
-                // Get IDs of products already in this purchase
-                $existingProductIds = $compra->detalles()->pluck('id_producto')->toArray();
+                // Get IDs of variants already in this purchase
+                $existingVariantIds = $compra->detalles()->pluck('id_variante')->toArray();
 
-                // Exclude those products, but keep the current one being edited
-                $products = $products->filter(function ($product) use ($existingProductIds, $currentProductId) {
-                    // Always include the product currently being edited
-                    if ($currentProductId && $product->id_producto == $currentProductId) {
+                // Exclude those variants, but keep the current one being edited
+                $variants = $variants->filter(function ($variant) use ($existingVariantIds, $currentVariantId) {
+                    // Always include the variant currently being edited
+                    if ($currentVariantId && $variant->id_variante == $currentVariantId) {
                         return true;
                     }
-                    // Exclude products that are already in other rows
-                    return !in_array($product->id_producto, $existingProductIds);
+                    // Exclude variants that are already in other rows
+                    return !in_array($variant->id_variante, $existingVariantIds);
                 });
             }
         }
 
-        // Return as key-value array with id as key and name as value
-        return $products->pluck('nombre', 'id_producto');
+        // Build the display name for each variant: "Product Name - Attribute1: Value1, Attribute2: Value2"
+        return $variants->mapWithKeys(function ($variant) {
+            $productName = $variant->producto->nombre ?? 'Producto sin nombre';
+
+            // Build attribute values string
+            $attributeValues = $variant->valores
+                ->map(function ($valor) {
+                    $atributoNombre = $valor->atributo->nombre ?? '';
+                    $valorTexto = $valor->valor ?? '';
+                    return "{$atributoNombre}: {$valorTexto}";
+                })
+                ->filter() // Remove empty values
+                ->implode(', ');
+
+            // Format: "Product Name - Attribute1: Value1, Attribute2: Value2"
+            $displayName = $attributeValues
+                ? "{$productName} - {$attributeValues}"
+                : $productName;
+
+            return [$variant->id_variante => $displayName];
+        });
     }
 
     /**

@@ -49,23 +49,30 @@ class CodigoClienteResource extends Resource
                     ->options([
                         'porcentaje' => 'Porcentaje',
                         'valor' => 'Valor Fijo',
-                    ]),
+                    ])
+                    ->live(),
                 Forms\Components\TextInput::make('valor')
                     ->label('Valor')
                     ->required()
                     ->numeric()
-                    ->step(0.01),
+                    ->step(0.01)
+                    ->minValue(0)
+                    ->helperText(fn ($get) => $get('tipo_descuento') === 'porcentaje' ? 'Porcentaje: ingrese un valor entre 0 y 100 (ej: 15 para 15%)' : 'Valor fijo: ingrese el monto del descuento (ej: 5000)'),
                 Forms\Components\Select::make('tipo_uso')
                     ->label('Tipo de Uso')
                     ->required()
                     ->options([
                         'unico' => 'Único',
                         'multiple' => 'Múltiple',
-                    ]),
+                    ])
+                    ->live(),
                 Forms\Components\TextInput::make('max_usos')
                     ->label('Máximo de Usos')
                     ->numeric()
-                    ->nullable(),
+                    ->integer()
+                    ->minValue(1)
+                    ->nullable()
+                    ->visible(fn ($get) => $get('tipo_uso') === 'multiple'),
                 Forms\Components\DateTimePicker::make('fecha_inicio')
                     ->label('Fecha de Inicio')
                     ->required(),
@@ -76,6 +83,7 @@ class CodigoClienteResource extends Resource
                     ->label('Monto Mínimo')
                     ->numeric()
                     ->step(0.01)
+                    ->minValue(0)
                     ->nullable(),
                 Forms\Components\Select::make('aplica_a')
                     ->label('Aplica a')
@@ -87,9 +95,13 @@ class CodigoClienteResource extends Resource
                     ])
                     ->live(),
                 Forms\Components\Select::make('producto_ids')
-                    ->label('Productos')
+                    ->label('Variantes')
                     ->multiple()
-                    ->options(\App\Models\Producto::all()->pluck('nombre', 'id_producto'))
+                    ->options(
+                        \App\Models\ProductoVariante::with(['producto', 'valores.atributo'])->get()->mapWithKeys(fn ($v) => [
+                            $v->id_variante => $v->producto->nombre . ' - ' . $v->valores->map(fn ($vv) => $vv->atributo->nombre . ': ' . $vv->valor)->join(', ')
+                        ])
+                    )
                     ->visible(fn ($get) => $get('aplica_a') === 'producto'),
                 Forms\Components\Select::make('categoria_ids')
                     ->label('Categorías')

@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('variante_impuesto', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('variante_id');
+            $table->unsignedBigInteger('impuesto_id');
+            $table->timestamps();
+
+            $table->foreign('variante_id')->references('id_variante')->on('producto_variante')->onDelete('cascade');
+            $table->foreign('impuesto_id')->references('id')->on('impuesto')->onDelete('cascade');
+            $table->unique(['variante_id', 'impuesto_id']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('variante_impuesto');
+    }
+};

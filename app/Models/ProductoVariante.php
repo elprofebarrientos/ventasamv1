@@ -49,4 +49,21 @@ class ProductoVariante extends Model
         return $this->belongsToMany(AtributoValor::class, 'variante_valor', 'id_variante', 'id_valor')
             ->withTimestamps();
     }
+
+    /**
+     * Get the impuestos for the variante.
+     */
+    public function impuestos(): BelongsToMany
+    {
+        return $this->belongsToMany(Impuesto::class, 'variante_impuesto', 'variante_id', 'impuesto_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Calculate total impuestos for a given amount.
+     */
+    public function calcularImpuestos(float $monto): float
+    {
+        return $this->impuestos->filter(fn ($i) => $i->activo)->sum(fn ($i) => $i->calcular($monto));
+    }
 }

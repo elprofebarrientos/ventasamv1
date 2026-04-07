@@ -87,7 +87,7 @@ class VariantePrecio extends Model
     {
         $detalle = CompraDetalle::where('id_variante', $varianteId)
             ->join('compras', 'compras.id_compra', '=', 'compras_detalle.id_compra')
-            ->orderByDesc('compras.fecha_emision')
+            ->orderByDesc('compras.id_compra')
             ->select('compras_detalle.costo_unitario')
             ->first();
 

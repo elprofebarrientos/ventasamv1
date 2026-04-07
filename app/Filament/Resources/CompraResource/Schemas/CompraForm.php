@@ -142,6 +142,18 @@ class CompraForm
                         ->default(0)
                         ->disabled()
                         ->dehydrated(),
+
+                    Select::make('resultado_recepcion')
+                        ->label('Resultado Recepción')
+                        ->options([
+                            'por_recibir' => 'Por recibir',
+                            'completa' => 'Completa',
+                            'incompleta' => 'Incompleta',
+                            'con_danos' => 'Con Daños',
+                            'mixta' => 'Mixta',
+                        ])
+                        ->default('por_recibir')
+                        ->placeholder('Por recibir'),
                 ]),
         ]);
     }

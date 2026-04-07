@@ -32,6 +32,7 @@ class Compra extends Model
         'monto_pagado',
         'monto_restante',
         'comprobante_pago',
+        'resultado_recepcion',
     ];
 
     protected function casts(): array

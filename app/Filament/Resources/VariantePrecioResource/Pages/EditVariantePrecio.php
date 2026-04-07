@@ -8,4 +8,9 @@ use Filament\Resources\Pages\EditRecord;
 class EditVariantePrecio extends EditRecord
 {
     protected static string $resource = VariantePrecioResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
+    }
 }

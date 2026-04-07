@@ -48,7 +48,10 @@ class VariantePrecioResource extends Resource
                     ->live()
                     ->afterStateUpdated(fn ($state, $set) => $set('precio_base', \App\Models\VariantePrecio::getUltimoCosto((int) $state)))
                     ->afterStateHydrated(fn ($state, $set, $record) => $set('precio_base_original', $record?->precio_base ?? 0))
-                    ->unique(table: 'variante_precio', column: 'variante_id', ignoreRecord: true),
+                    ->unique(table: 'variante_precio', column: 'variante_id', ignoreRecord: true)
+                    ->validationMessages([
+                        'unique' => 'La variante ya tiene un precio registrado.',
+                    ]),
                 TextInput::make('precio_base_original')
                     ->hidden(),
                 TextInput::make('margen_porcentaje_original')
@@ -63,7 +66,7 @@ class VariantePrecioResource extends Resource
                     ->live()
                     ->suffixAction(
                         Action::make('buscarCosto')
-                            ->label('Buscar Último Costo')
+                            ->label('Clic para actualizar valores')
                             ->icon('heroicon-m-magnifying-glass')
                             ->action(function (Get $get, Set $set) {
                                 $varianteId = $get('variante_id');
@@ -71,6 +74,25 @@ class VariantePrecioResource extends Resource
                                     $ultimoCosto = \App\Models\VariantePrecio::getUltimoCosto((int) $varianteId);
                                     if ($ultimoCosto !== null) {
                                         $set('precio_base', $ultimoCosto);
+                                        
+                                        $base = (float) $ultimoCosto;
+                                        $margen = (float) ($get('margen_porcentaje') ?? 0);
+                                        $precioFinal = round($base * (1 + $margen / 100), 2);
+                                        $set('precio_final', $precioFinal);
+                                        
+                                        $impuestoIds = $get('impuesto_ids') ?? [];
+                                        $totalImpuestos = 0;
+                                        if (!empty($impuestoIds)) {
+                                            $impuestos = \App\Models\Impuesto::whereIn('id', $impuestoIds)->where('activo', true)->get();
+                                            foreach ($impuestos as $impuesto) {
+                                                if ($impuesto->tipo === 'porcentaje') {
+                                                    $totalImpuestos += $precioFinal * $impuesto->valor / 100;
+                                                } else {
+                                                    $totalImpuestos += $impuesto->valor;
+                                                }
+                                            }
+                                        }
+                                        $set('precio_venta', round($precioFinal + $totalImpuestos, 2));
                                     }
                                 }
                             })

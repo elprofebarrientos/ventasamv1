@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Marca extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Auditable;
 
     protected $table = 'marca';
     protected $primaryKey = 'id_marca';
@@ -19,6 +20,8 @@ class Marca extends Model
         'descripcion',
         'logo',
         'activo',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

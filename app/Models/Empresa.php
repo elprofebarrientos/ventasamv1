@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Empresa extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Auditable;
 
     protected $table = 'empresa';
 
@@ -37,6 +38,8 @@ class Empresa extends Model
         'rango_inicio',
         'rango_fin',
         'clave_tecnica',
+        'created_by',
+        'updated_by',
     ];
 
     protected function casts(): array

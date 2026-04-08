@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Abono extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $table = 'abonos';
 
@@ -19,6 +20,8 @@ class Abono extends Model
         'metodo_pago',
         'nota',
         'documento',
+        'created_by',
+        'updated_by',
     ];
 
     protected function casts(): array

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AtributoValor extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Auditable;
 
     protected $table = 'atributo_valor';
 
@@ -20,6 +21,8 @@ class AtributoValor extends Model
         'valor',
         'codigo_hex',
         'imagen_url',
+        'created_by',
+        'updated_by',
     ];
 
     protected function casts(): array

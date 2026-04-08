@@ -2,19 +2,22 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class VarianteValor extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $table = 'variante_valor';
 
     protected $fillable = [
         'id_variante',
         'id_valor',
+        'created_by',
+        'updated_by',
     ];
 
     protected function casts(): array

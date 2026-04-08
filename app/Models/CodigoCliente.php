@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CodigoCliente extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     public $timestamps = false;
 
@@ -30,6 +31,8 @@ class CodigoCliente extends Model
         'categoria_id',
         'categoria_ids',
         'activo',
+        'created_by',
+        'updated_by',
     ];
 
     protected function casts(): array

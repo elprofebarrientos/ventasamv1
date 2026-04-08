@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UnidadMedida extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Auditable;
 
     protected $table = 'unidad_medida';
     protected $primaryKey = 'id_unidad_medida';
@@ -19,6 +20,8 @@ class UnidadMedida extends Model
         'abreviatura',
         'tipo',
         'activo',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

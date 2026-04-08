@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CompraDetalle extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $table = 'compras_detalle';
 
@@ -20,6 +21,8 @@ class CompraDetalle extends Model
         'cantidad',
         'costo_unitario',
         'porcentaje_iva',
+        'created_by',
+        'updated_by',
     ];
 
     protected function casts(): array

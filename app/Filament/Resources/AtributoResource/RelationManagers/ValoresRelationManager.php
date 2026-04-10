@@ -40,6 +40,14 @@ class ValoresRelationManager extends RelationManager
                     ->visibility('public')
                     ->visible($tipoVisual === 'IMAGEN')
                     ->required($tipoVisual === 'IMAGEN'),
+                Forms\Components\Select::make('estado')
+                    ->label('Estado')
+                    ->options([
+                        true => 'Activo',
+                        false => 'Inactivo',
+                    ])
+                    ->required()
+                    ->default(true),
             ]);
     }
 
@@ -58,6 +66,11 @@ class ValoresRelationManager extends RelationManager
                     ->label('Código Hex'),
                 Tables\Columns\ImageColumn::make('imagen_url')
                     ->label('Imagen'),
+                Tables\Columns\TextColumn::make('estado')
+                    ->label('Estado')
+                    ->badge()
+                    ->color(fn (bool $state): string => $state ? 'success' : 'danger')
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Activo' : 'Inactivo'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Creado')
                     ->dateTime()
@@ -65,7 +78,11 @@ class ValoresRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\SelectFilter::make('estado')
+                    ->options([
+                        true => 'Activo',
+                        false => 'Inactivo',
+                    ]),
             ])
             ->headerActions([
                 Actions\CreateAction::make()
@@ -73,16 +90,6 @@ class ValoresRelationManager extends RelationManager
             ])
             ->actions([
                 Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
-                Actions\ForceDeleteAction::make(),
-                Actions\RestoreAction::make(),
-            ])
-            ->bulkActions([
-                Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make(),
-                    Actions\ForceDeleteBulkAction::make(),
-                    Actions\RestoreBulkAction::make(),
-                ]),
             ]);
     }
 }

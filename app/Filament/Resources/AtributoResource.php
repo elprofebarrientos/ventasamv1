@@ -6,16 +6,8 @@ use App\Filament\Resources\AtributoResource\Pages;
 use App\Filament\Resources\AtributoResource\RelationManagers;
 use App\Models\Atributo;
 use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -54,6 +46,14 @@ class AtributoResource extends Resource
                     ])
                     ->required()
                     ->default('TEXTO'),
+                Forms\Components\Select::make('estado')
+                    ->label('Estado')
+                    ->options([
+                        true => 'Activo',
+                        false => 'Inactivo',
+                    ])
+                    ->required()
+                    ->default(true),
             ]);
     }
 
@@ -76,6 +76,11 @@ class AtributoResource extends Resource
                         'success' => 'COLOR',
                         'warning' => 'IMAGEN',
                     ]),
+                Tables\Columns\TextColumn::make('estado')
+                    ->label('Estado')
+                    ->badge()
+                    ->color(fn (bool $state): string => $state ? 'success' : 'danger')
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Activo' : 'Inactivo'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Creado')
                     ->dateTime()
@@ -83,21 +88,15 @@ class AtributoResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\SelectFilter::make('estado')
+                    ->options([
+                        true => 'Activo',
+                        false => 'Inactivo',
+                    ]),
             ])
             ->actions([
                 EditAction::make()
                     ->label('Agregar Valores'),
-                DeleteAction::make(),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
-            ])
-            ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                ]),
             ])
             ->headerActions([
                 CreateAction::make()

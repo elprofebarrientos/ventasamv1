@@ -21,6 +21,7 @@ class AtributoValor extends Model
         'valor',
         'codigo_hex',
         'imagen_url',
+        'estado',
         'created_by',
         'updated_by',
     ];

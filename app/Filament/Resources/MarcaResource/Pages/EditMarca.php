@@ -8,4 +8,9 @@ use Filament\Resources\Pages\EditRecord;
 class EditMarca extends EditRecord
 {
     protected static string $resource = MarcaResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

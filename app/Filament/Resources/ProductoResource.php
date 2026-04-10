@@ -57,7 +57,7 @@ class ProductoResource extends Resource
                     ->rows(4),
                 Forms\Components\Select::make('id_categoria')
                     ->label('Categoría')
-                    ->relationship('categoria', 'nombre')
+                    ->options(fn () => \App\Models\Categoria::where('activo', true)->pluck('nombre', 'id_categoria'))
                     ->nullable()
                     ->searchable()
                     ->preload(),

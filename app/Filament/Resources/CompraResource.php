@@ -89,6 +89,17 @@ class CompraResource extends Resource
                     ->label('Monto Restante')
                     ->formatStateUsing(fn ($state) => '$' . number_format($state, 2, ',', '.'))
                     ->sortable(),
+                Tables\Columns\TextColumn::make('resultado_recepcion')
+                    ->label('Resultado Recepción')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Por recibir' => 'warning',
+                        'Completa' => 'success',
+                        'Incompleta' => 'danger',
+                        'Con daños' => 'danger',
+                        'Mixta' => 'info',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Creado')
                     ->dateTime()

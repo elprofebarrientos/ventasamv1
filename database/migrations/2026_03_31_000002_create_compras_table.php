@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('valor_retefuente', 18, 2)->default(0);
             $table->decimal('valor_reteica', 18, 2)->default(0);
             $table->decimal('total_neto_pagar', 18, 2)->default(0);
+            $table->enum('resultado_recepcion', ['Por recibir', 'Completa', 'Incompleta', 'Con daños', 'Mixta'])->nullable()->default('Por recibir');
             $table->timestamps();
 
             $table->foreign('id_proveedor')->references('id_proveedor')->on('proveedores')->cascadeOnDelete();

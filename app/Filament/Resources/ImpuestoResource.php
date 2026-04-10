@@ -2,16 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ImpuestoResource\Pages;
 use App\Models\Impuesto;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -90,19 +87,13 @@ class ImpuestoResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\Resources\ImpuestoResource\Pages\ListImpuestos::route('/'),
+            'index' => Pages\ListImpuestos::route('/'),
         ];
     }
 }

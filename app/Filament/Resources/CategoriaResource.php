@@ -4,22 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoriaResource\Pages;
 use App\Models\Categoria;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-
-use Filament\Support\Icons\Icon;
 
 class CategoriaResource extends Resource
 {
@@ -85,20 +76,9 @@ class CategoriaResource extends Resource
                 Tables\Filters\Filter::make('activo')
                     ->label('Solo activos')
                     ->query(fn ($query) => $query->where('activo', true)),
-                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make(),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
-            ])
-            ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                ]),
             ]);
     }
 

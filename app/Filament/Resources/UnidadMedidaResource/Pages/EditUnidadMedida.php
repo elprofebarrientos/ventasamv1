@@ -8,4 +8,9 @@ use Filament\Resources\Pages\EditRecord;
 class EditUnidadMedida extends EditRecord
 {
     protected static string $resource = UnidadMedidaResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

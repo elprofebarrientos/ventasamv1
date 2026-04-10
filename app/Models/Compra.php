@@ -38,6 +38,10 @@ class Compra extends Model
         'updated_by',
     ];
 
+    protected $attributes = [
+        'resultado_recepcion' => 'Por recibir',
+    ];
+
     protected function casts(): array
     {
         return [

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('compras', function (Blueprint $table) {
-            $table->string('resultado_recepcion', 20)->nullable()->after('comprobante_pago');
+            $table->enum('resultado_recepcion', ['Por recibir', 'Completa', 'Incompleta', 'Con daños', 'Mixta'])->nullable()->default('Por recibir')->after('comprobante_pago');
         });
     }
 

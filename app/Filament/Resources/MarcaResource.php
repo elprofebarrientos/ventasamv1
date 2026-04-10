@@ -80,7 +80,8 @@ class MarcaResource extends Resource
             ->headerActions([
                 CreateAction::make()
                     ->modal()
-                    ->label('Nueva Marca'),
+                    ->label('Nueva Marca')
+                    ->successNotificationTitle('Creado correctamente'),
             ]);
     }
 

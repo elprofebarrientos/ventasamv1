@@ -271,7 +271,8 @@ class EmpresaResource extends Resource
             ->headerActions([
                 CreateAction::make()
                     ->label('Nueva Empresa')
-                    ->visible(fn () => !Empresa::exists()),
+                    ->visible(fn () => !Empresa::exists())
+                    ->successNotificationTitle('Creado correctamente'),
             ]);
     }
 

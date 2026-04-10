@@ -99,7 +99,8 @@ class UnidadMedidaResource extends Resource
             ->headerActions([
                 CreateAction::make()
                     ->modal()
-                    ->label('Nueva Unidad'),
+                    ->label('Nueva Unidad')
+                    ->successNotificationTitle('Creado correctamente'),
             ]);
     }
 

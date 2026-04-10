@@ -101,7 +101,8 @@ class AtributoResource extends Resource
             ->headerActions([
                 CreateAction::make()
                     ->modal()
-                    ->label('Nuevo Atributo'),
+                    ->label('Nuevo Atributo')
+                    ->successNotificationTitle('Creado correctamente'),
             ]);
     }
 

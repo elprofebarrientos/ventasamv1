@@ -6,20 +6,14 @@ use App\Filament\Resources\ProductoResource\Pages;
 use App\Filament\Resources\ProductoResource\RelationManagers;
 use App\Models\Producto;
 use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class ProductoResource extends Resource
 {
@@ -45,7 +39,7 @@ class ProductoResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, $set) => $set('slug', \Str::slug($state))),
+                    ->afterStateUpdated(fn ($state, $set) => $set('slug', str()->slug($state))),
                 Forms\Components\TextInput::make('slug')
                     ->label('Slug')
                     ->required()
@@ -55,6 +49,11 @@ class ProductoResource extends Resource
                     ->label('Descripción')
                     ->maxLength(65535)
                     ->rows(4),
+                Forms\Components\FileUpload::make('imagen')
+                    ->label('Imagen')
+                    ->image()
+                    ->directory('productos')
+                    ->visibility('public'),
                 Forms\Components\Select::make('id_categoria')
                     ->label('Categoría')
                     ->options(fn () => \App\Models\Categoria::where('activo', true)->pluck('nombre', 'id_categoria'))
@@ -98,6 +97,8 @@ class ProductoResource extends Resource
                 Tables\Columns\TextColumn::make('id_producto')
                     ->label('ID')
                     ->sortable(),
+                Tables\Columns\ImageColumn::make('imagen')
+                    ->label('Imagen'),
                 Tables\Columns\TextColumn::make('nombre')
                     ->label('Nombre')
                     ->searchable()
@@ -144,26 +145,16 @@ class ProductoResource extends Resource
                 Tables\Filters\Filter::make('permite_alquiler')
                     ->label('Solo permite alquiler')
                     ->query(fn ($query) => $query->where('permite_alquiler', true)),
-                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 EditAction::make()
                     ->label('Agregar Variante'),
-                DeleteAction::make(),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
-            ])
-            ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                ]),
             ])
             ->headerActions([
                 CreateAction::make()
                     ->modal()
-                    ->label('Nuevo Producto'),
+                    ->label('Nuevo Producto')
+                    ->successNotificationTitle('Creado correctamente'),
             ]);
     }
 

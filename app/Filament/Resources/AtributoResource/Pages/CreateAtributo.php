@@ -8,4 +8,14 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateAtributo extends CreateRecord
 {
     protected static string $resource = AtributoResource::class;
+
+    protected function getCreatedNotificationTitle(): ?string
+    {
+        return 'Creado correctamente';
+    }
+
+    protected function getUpdatedNotificationTitle(): ?string
+    {
+        return 'Guardado correctamente';
+    }
 }

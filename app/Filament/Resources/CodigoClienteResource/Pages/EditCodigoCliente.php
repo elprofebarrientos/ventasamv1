@@ -13,4 +13,9 @@ class EditCodigoCliente extends EditRecord
     {
         return $this->getResource()::getUrl('index');
     }
+
+    protected function getUpdatedNotificationTitle(): ?string
+    {
+        return 'Guardado correctamente';
+    }
 }

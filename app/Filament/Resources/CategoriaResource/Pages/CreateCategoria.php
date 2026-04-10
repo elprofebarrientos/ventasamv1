@@ -13,4 +13,14 @@ class CreateCategoria extends CreateRecord
     {
         return $this->getResource()::getUrl('index');
     }
+
+    protected function getCreatedNotificationTitle(): ?string
+    {
+        return 'Creado correctamente';
+    }
+    
+    protected function getUpdatedNotificationTitle(): ?string
+    {
+        return 'Guardado correctamente';
+    }
 }

@@ -69,7 +69,7 @@ class VariantesRelationManager extends RelationManager
                                     ->pluck('id_atributo')
                                     ->filter()
                                     ->toArray();
-                                return Atributo::whereNotIn('id_atributo', $usedAtributos)->pluck('nombre', 'id_atributo');
+                                return Atributo::where('estado', true)->whereNotIn('id_atributo', $usedAtributos)->pluck('nombre', 'id_atributo');
                             })
                             ->required()
                             ->reactive()
@@ -82,6 +82,7 @@ class VariantesRelationManager extends RelationManager
                                     return [];
                                 }
                                 return AtributoValor::where('id_atributo', $idAtributo)
+                                    ->where('estado', true)
                                     ->pluck('valor', 'id_valor');
                             })
                             ->required()
@@ -156,7 +157,6 @@ class VariantesRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
             ])
             ->headerActions([
                 Actions\CreateAction::make()
@@ -194,16 +194,6 @@ class VariantesRelationManager extends RelationManager
                         }
                         $record->valores()->syncWithoutDetaching($syncData);
                     }),
-                Actions\DeleteAction::make(),
-                Actions\ForceDeleteAction::make(),
-                Actions\RestoreAction::make(),
-            ])
-            ->bulkActions([
-                Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make(),
-                    Actions\ForceDeleteBulkAction::make(),
-                    Actions\RestoreBulkAction::make(),
-                ]),
             ]);
     }
 }

@@ -272,7 +272,8 @@ $set('precio_venta', round($precioFinal + $totalImpuestos, 2));
             ])
             ->headerActions([
                 \Filament\Actions\CreateAction::make()
-                    ->label('Nuevo Precio'),
+                    ->label('Nuevo Precio')
+                    ->successNotificationTitle('Creado correctamente'),
             ])
             ->defaultSort('id', 'desc');
     }

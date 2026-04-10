@@ -21,6 +21,7 @@ class Producto extends Model
         'nombre',
         'slug',
         'descripcion',
+        'imagen',
         'id_categoria',
         'id_marca',
         'id_unidad_medida',

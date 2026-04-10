@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ImpuestoResource\Pages;
 
 use App\Filament\Resources\ImpuestoResource;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListImpuestos extends ListRecords
@@ -12,9 +13,10 @@ class ListImpuestos extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            \Filament\Actions\CreateAction::make()
+            CreateAction::make()
                 ->modal()
-                ->label('Nuevo Impuesto'),
+                ->label('Nuevo Impuesto')
+                ->successNotificationTitle('Creado correctamente'),
         ];
     }
 }

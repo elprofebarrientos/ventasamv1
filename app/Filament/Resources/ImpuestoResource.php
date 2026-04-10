@@ -86,7 +86,8 @@ class ImpuestoResource extends Resource
                     ->query(fn ($query) => $query->where('activo', true)),
             ])
             ->actions([
-                EditAction::make(),
+                EditAction::make()
+                    ->successNotificationTitle('Guardado correctamente'),
             ]);
     }
 

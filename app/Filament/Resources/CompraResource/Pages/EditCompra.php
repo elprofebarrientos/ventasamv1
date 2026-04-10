@@ -10,6 +10,11 @@ class EditCompra extends EditRecord
 {
     protected static string $resource = CompraResource::class;
 
+    protected function getUpdatedNotificationTitle(): ?string
+    {
+        return 'Guardado correctamente';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

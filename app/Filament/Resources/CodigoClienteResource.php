@@ -166,7 +166,8 @@ class CodigoClienteResource extends Resource
             ])
             ->headerActions([
                 \Filament\Actions\CreateAction::make()
-                    ->label('Nuevo Código'),
+                    ->label('Nuevo Código')
+                    ->successNotificationTitle('Creado correctamente'),
             ]);
     }
 

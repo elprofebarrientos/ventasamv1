@@ -142,14 +142,15 @@ class VariantesRelationManager extends RelationManager
                 Tables\Columns\IconColumn::make('activo')
                     ->label('Activo')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('valores.atributo.nombre')
+                Tables\Columns\TextColumn::make('atributos_y_valores')
                     ->label('Atributos')
+                    ->getStateUsing(function ($record) {
+                        return $record->valores->map(function ($valor) {
+                            return $valor->atributo->nombre . ': ' . $valor->valor;
+                        })->join(' | ');
+                    })
                     ->badge()
-                    ->separator(','),
-                Tables\Columns\TextColumn::make('valores.valor')
-                    ->label('Valores')
-                    ->badge()
-                    ->separator(','),
+                    ->color('info'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Creado')
                     ->dateTime()

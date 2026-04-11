@@ -16,6 +16,7 @@ use Database\Seeders\ProveedorSeeder;
 use Database\Seeders\AtributoSeeder;
 use Database\Seeders\ImpuestoSeeder;
 use Database\Seeders\UbicacionSeeder;
+use Database\Seeders\ProductoSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -45,6 +46,7 @@ class DatabaseSeeder extends Seeder
             AtributoSeeder::class,
             ImpuestoSeeder::class,
             UbicacionSeeder::class,
+            ProductoSeeder::class,
         ]);
     }
 }

@@ -14,7 +14,7 @@ class RecepcionController extends Controller
 {
     public function getDetalles($compraId)
     {
-        $detalles = \App\Models\CompraDetalle::with(['variante.producto'])
+        $detalles = \App\Models\CompraDetalle::with(['variante.producto', 'variante.valores.atributo'])
             ->where('id_compra', $compraId)
             ->get();
         

@@ -36,4 +36,9 @@ class RecepcionCompra extends Model
     {
         return $this->belongsTo(Compra::class, 'id_compra', 'id_compra');
     }
+
+    public function detalles(): HasMany
+    {
+        return $this->hasMany(RecepcionDetalle::class, 'id_recepcion', 'id_recepcion');
+    }
 }

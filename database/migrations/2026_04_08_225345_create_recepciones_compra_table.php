@@ -15,13 +15,17 @@ return new class extends Migration
             $table->id('id_recepcion');
             $table->unsignedBigInteger('id_compra');
 
-            $table->dateTime('fecha');
+            $table->date('fecha');
             $table->text('observacion')->nullable();
             $table->string('estado')->default('BORRADOR');
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
 
             $table->timestamps();
 
             $table->foreign('id_compra')->references('id_compra')->on('compras')->cascadeOnDelete();
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
         });
     }
 

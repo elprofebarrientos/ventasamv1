@@ -19,6 +19,7 @@ class Atributo extends Model
     protected $fillable = [
         'nombre',
         'tipo_visual',
+        'estado',
         'created_by',
         'updated_by',
     ];

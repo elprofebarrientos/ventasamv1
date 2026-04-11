@@ -10,6 +10,12 @@ use Database\Seeders\MarcaSeeder;
 use Database\Seeders\CountrySeeder;
 use Database\Seeders\DepartmentSeeder;
 use Database\Seeders\CitySeeder;
+use Database\Seeders\EmpresaSucursalBodegaSeeder;
+use Database\Seeders\CategoriaSeeder;
+use Database\Seeders\ProveedorSeeder;
+use Database\Seeders\AtributoSeeder;
+use Database\Seeders\ImpuestoSeeder;
+use Database\Seeders\UbicacionSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -33,6 +39,12 @@ class DatabaseSeeder extends Seeder
             CitySeeder::class,
             UnidadMedidaSeeder::class,
             MarcaSeeder::class,
+            EmpresaSucursalBodegaSeeder::class,
+            CategoriaSeeder::class,
+            ProveedorSeeder::class,
+            AtributoSeeder::class,
+            ImpuestoSeeder::class,
+            UbicacionSeeder::class,
         ]);
     }
 }

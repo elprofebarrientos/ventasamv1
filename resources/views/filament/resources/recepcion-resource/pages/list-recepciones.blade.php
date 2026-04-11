@@ -7,153 +7,151 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
 @endphp
 
 <x-filament-panels::page>
-    <div class="fi-content">
-        <div class="bg-gray-50 min-h-screen p-6">
-            <div class="max-w-6xl mx-auto">
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div class="p-6 border-b border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h2 class="text-2xl font-bold text-gray-800">Recepción de Compras</h2>
-                                <p class="mt-1 text-sm text-gray-500 ml-4">Administra la recepción de productos comprados</p>
-                            </div>
-                            <span class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium">
-                                {{ $compras->count() }} pendientes
-                            </span>
+    <div style="background-color: #f9fafb; min-height: 100vh; padding: 1.5rem;">
+        <div style="max-width: 72rem; margin: 0 auto;">
+            <div style="background-color: white; border-radius: 0.75rem; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="padding: 1.5rem; border-bottom: 1px solid #e5e7eb;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <h2 style="font-size: 1.5rem; font-weight: 700; color: #1f2937;">Recepción de Compras</h2>
+                            <p style="margin-top: 0.25rem; font-size: 0.875rem; color: #6b7280; margin-left: 1rem;">Administra la recepción de productos comprados</p>
                         </div>
+                        <span style="background-color: #dbeafe; color: #1d4ed8; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">
+                            {{ $compras->count() }} pendientes
+                        </span>
                     </div>
-
-                    @if($compras->isEmpty())
-                        <div class="p-8 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">No hay compras pendientes</h3>
-                            <p class="mt-1 text-sm text-gray-500">Todas las compras han sido recepcionadas.</p>
-                        </div>
-                    @else
-                        <table class="w-full border-collapse">
-                            <thead>
-                                <tr class="bg-gray-100">
-                                    <th class="px-8 py-4 text-left text-xs font-bold text-gray-600 tracking-wider uppercase">Proveedor</th>
-                                    <th class="px-8 py-4 text-left text-xs font-bold text-gray-600 tracking-wider uppercase">Factura</th>
-                                    <th class="px-8 py-4 text-left text-xs font-bold text-gray-600 tracking-wider uppercase">Fecha</th>
-                                    <th class="px-8 py-4 text-left text-xs font-bold text-gray-600 tracking-wider uppercase">Total</th>
-                                    <th class="px-8 py-4 text-left text-xs font-bold text-gray-600 tracking-wider uppercase">Estado</th>
-                                    <th class="px-8 py-4 text-right text-xs font-bold text-gray-600 tracking-wider uppercase">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($compras as $compra)
-                                <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                                    <td class="px-8 py-5">
-                                        <div class="text-sm font-semibold text-gray-900">{{ $compra->proveedor->razon_social ?? 'N/A' }}</div>
-                                    </td>
-                                    <td class="px-8 py-5">
-                                        <div class="text-sm text-gray-700">{{ $compra->numero_factura ?? 'N/A' }}</div>
-                                    </td>
-                                    <td class="px-8 py-5">
-                                        <div class="text-sm text-gray-600">{{ $compra->fecha_emision->format('d/m/Y') }}</div>
-                                    </td>
-                                    <td class="px-8 py-5">
-                                        <div class="text-sm font-bold text-gray-900">${{ number_format($compra->total_neto_pagar, 2, ',', '.') }}</div>
-                                    </td>
-                                    <td class="px-8 py-5">
-                                        @php
-                                            $statusConfig = match($compra->resultado_recepcion) {
-                                                'Por recibir' => ['bg-yellow-100 text-yellow-700', 'bg-yellow-500'],
-                                                'Incompleta' => ['bg-red-100 text-red-700', 'bg-red-500'],
-                                                'Con daños' => ['bg-red-100 text-red-700', 'bg-red-500'],
-                                                'Mixta' => ['bg-blue-100 text-blue-700', 'bg-blue-500'],
-                                                default => ['bg-gray-100 text-gray-700', 'bg-gray-500']
-                                            };
-                                        @endphp
-                                        <span class="inline-flex items-center gap-2">
-                                            <span class="w-2 h-2 rounded-full {{ $statusConfig[1] }}"></span>
-                                            <span class="text-xs font-medium {{ $statusConfig[0] }} px-2 py-1 rounded-full">
-                                                {{ $compra->resultado_recepcion }}
-                                            </span>
-                                        </span>
-                                    </td>
-                                    <td class="px-8 py-5 text-right">
-                                        <button 
-                                            type="button"
-                                            onclick="openRecepcionModal({{ $compra->id_compra }}, '{{ addslashes($compra->proveedor->razon_social ?? 'N/A') }}', '{{ $compra->numero_factura ?? 'N/A' }}')"
-                                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                                            Recepcinar
-                                        </button>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    @endif
                 </div>
+
+                @if($compras->isEmpty())
+                    <div style="padding: 2rem; text-align: center;">
+                        <svg style="margin: 0 auto; height: 3rem; width: 3rem; color: #9ca3af;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h3 style="margin-top: 0.5rem; font-size: 0.875rem; font-weight: 500; color: #111827;">No hay achats pendientes</h3>
+                        <p style="margin-top: 0.25rem; font-size: 0.875rem; color: #6b7280;">Todas las compras han sido recepcionadas.</p>
+                    </div>
+                @else
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: #f3f4f6;">
+                                <th style="padding: 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: #4b5563; text-transform: uppercase;">Proveedor</th>
+                                <th style="padding: 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: #4b5563; text-transform: uppercase;">Factura</th>
+                                <th style="padding: 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: #4b5563; text-transform: uppercase;">Fecha</th>
+                                <th style="padding: 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: #4b5563; text-transform: uppercase;">Total</th>
+                                <th style="padding: 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: #4b5563; text-transform: uppercase;">Estado</th>
+                                <th style="padding: 1rem; text-align: right; font-size: 0.75rem; font-weight: 700; color: #4b5563; text-transform: uppercase;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($compras as $compra)
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 1.25rem;">
+                                    <div style="font-size: 0.875rem; font-weight: 600; color: #111827;">{{ $compra->proveedor->razon_social ?? 'N/A' }}</div>
+                                </td>
+                                <td style="padding: 1.25rem;">
+                                    <div style="font-size: 0.875rem; color: #374151;">{{ $compra->numero_factura ?? 'N/A' }}</div>
+                                </td>
+                                <td style="padding: 1.25rem;">
+                                    <div style="font-size: 0.875rem; color: #4b5563;">{{ $compra->fecha_emision->format('d/m/Y') }}</div>
+                                </td>
+                                <td style="padding: 1.25rem;">
+                                    <div style="font-size: 0.875rem; font-weight: 700; color: #111827;">${{ number_format($compra->total_neto_pagar, 2, ',', '.') }}</div>
+                                </td>
+                                <td style="padding: 1.25rem;">
+                                    @php
+                                        $statusConfig = match($compra->resultado_recepcion) {
+                                            'Por recibir' => ['background-color: #fef3c7; color: #92400e;', '#facc15'],
+                                            'Incompleta' => ['background-color: #fee2e2; color: #991b1b;', '#ef4444'],
+                                            'Con daños' => ['background-color: #fee2e2; color: #991b1b;', '#ef4444'],
+                                            'Mixta' => ['background-color: #dbeafe; color: #1e40af;', '#3b82f6'],
+                                            default => ['background-color: #f3f4f6; color: #374151;', '#6b7280']
+                                        };
+                                    @endphp
+                                    <span style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                                        <span style="width: 0.5rem; height: 0.5rem; border-radius: 50%; background-color: {{ $statusConfig[1] }};"></span>
+                                        <span style="font-size: 0.75rem; font-weight: 500; padding: 0.25rem 0.5rem; border-radius: 9999px; {{ $statusConfig[0] }}">
+                                            {{ $compra->resultado_recepcion }}
+                                        </span>
+                                    </span>
+                                </td>
+                                <td style="padding: 1.25rem; text-align: right;">
+                                    <button 
+                                        type="button"
+                                        onclick="openRecepcionModal({{ $compra->id_compra }}, '{{ addslashes($compra->proveedor->razon_social ?? 'N/A') }}', '{{ $compra->numero_factura ?? 'N/A' }}')"
+                                        style="background-color: #2563eb; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer;">
+                                        Recepcionar
+                                    </button>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
             </div>
         </div>
     </div>
 
-    <div id="recepcion-modal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex min-h-screen items-center justify-center p-4">
-            <div class="fixed inset-0 bg-gray-900/75 transition-opacity" onclick="closeRecepcionModal()"></div>
-            <div class="relative transform overflow-hidden rounded-xl bg-white dark:bg-gray-850 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-6xl">
-                <div class="bg-white dark:bg-gray-850 px-4 py-5 sm:p-6">
-                    <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+    <div id="recepcion-modal" style="display: none; position: fixed; inset: 0; z-index: 50; overflow-y: auto;" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div style="display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 1rem;">
+            <div style="position: fixed; inset: 0; background-color: rgba(17, 24, 39, 0.75);" onclick="closeRecepcionModal()"></div>
+            <div style="position: relative; transform: translateY(0); overflow: hidden; border-radius: 0.75rem; background-color: white; text-align: left; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); width: 100%; max-width: 72rem;">
+                <div style="background-color: white; padding: 1.25rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem; margin-bottom: 1rem;">
                         <div>
-                            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100" id="modal-title">
-                                Recepcinar Compra
+                            <h3 style="font-size: 1.25rem; font-weight: 600; color: #111827;" id="modal-title">
+                                Recepcionar Compra
                             </h3>
-                            <p class="text-sm text-gray-500 mt-1" id="compra-info"></p>
+                            <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;" id="compra-info"></p>
                         </div>
-                        <button type="button" onclick="closeRecepcionModal()" class="text-gray-400 hover:text-gray-500">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <button type="button" onclick="closeRecepcionModal()" style="color: #9ca3af;">
+                            <svg style="height: 1.5rem; width: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
                     
-                    <form id="recepcion-form" method="POST" class="mt-4">
+                    <form id="recepcion-form" method="POST" style="margin-top: 1rem;">
                         @csrf
                         <input type="hidden" name="id_compra" id="id_compra">
                         
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Observación</label>
-                            <textarea name="observacion" id="observacion" rows="2" class="fi-input block w-full rounded-md" placeholder="Observación opcional..."></textarea>
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Observación</label>
+                            <textarea name="observacion" id="observacion" rows="2" placeholder="Observación opcional..." style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;"></textarea>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sucursal</label>
-                            <select name="id_sucursal" id="id_sucursal" class="fi-input block w-full rounded-md" onchange="loadBodegasPorSucursal(this.value)" required>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Sucursal</label>
+                            <select name="id_sucursal" id="id_sucursal" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;" onchange="loadBodegasPorSucursal(this.value)" required>
                                 <option value="">Seleccionar Sucursal...</option>
                             </select>
                         </div>
                         
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Productos a Recepcinar</label>
-                            <div class="overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                    <thead class="bg-gray-50 dark:bg-gray-800">
-                                        <tr>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Producto</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Atributos</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Cantidad</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Bodega</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ubicación</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Recibida</th>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Productos a Recepcionar</label>
+                            <div style="overflow: hidden; border: 1px solid #e5e7eb; border-radius: 0.5rem;">
+                                <table style="width: 100%; min-width: 100%;">
+                                    <thead>
+                                        <tr style="background-color: #f9fafb;">
+                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Producto</th>
+                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Atributos</th>
+                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Cantidad</th>
+                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Bodega</th>
+                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Ubicación</th>
+                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Recibida</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="detalles-body" class="bg-white dark:bg-gray-850 divide-y divide-gray-200 dark:divide-gray-700">
+                                    <tbody id="detalles-body" style="background-color: white;">
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-800 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                    <button type="button" onclick="submitRecepcion()" class="fi-btn fi-btn-primary w-full justify-center sm:ml-3 sm:w-auto">
+                <div style="background-color: #f9fafb; padding: 0.75rem; display: flex; flex-direction: row-reverse; padding: 0.75rem 1.5rem;">
+                    <button type="button" onclick="submitRecepcion()" style="width: 100%; justify-content: center; margin-left: 0.75rem; padding: 0.5rem 1rem; background-color: #2563eb; color: white; border-radius: 0.5rem; font-weight: 500;">
                         Guardar Recepción
                     </button>
-                    <button type="button" onclick="closeRecepcionModal()" class="fi-btn fi-btnsecondary mt-3 w-full justify-center sm:mt-0 sm:w-auto">
+                    <button type="button" onclick="closeRecepcionModal()" style="margin-top: 0.75rem; width: 100%; justify-content: center; padding: 0.5rem 1rem; background-color: #d1d5db; color: #374151; border-radius: 0.5rem; font-weight: 500;">
                         Cancelar
                     </button>
                 </div>
@@ -234,22 +232,23 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
                 }
                 
                 const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid #e5e7eb';
                 row.innerHTML = `
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">` + (detalle.variante && detalle.variante.producto ? detalle.variante.producto.nombre : 'N/A') + `</td>
-                    <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">` + atributosTexto + `</td>
-                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">` + parseFloat(detalle.cantidad).toFixed(2) + `</td>
-                    <td class="px-4 py-3">
-                        <select name="detalles[` + index + `][id_bodega]" class="fi-input text-sm rounded py-1" onchange="loadUbicaciones(this.value, ` + index + `)" required>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">` + (detalle.variante && detalle.variante.producto ? detalle.variante.producto.nombre : 'N/A') + `</td>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">` + atributosTexto + `</td>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827; font-weight: 500;">` + parseFloat(detalle.cantidad).toFixed(2) + `</td>
+                    <td style="padding: 0.75rem;">
+                        <select name="detalles[` + index + `][id_bodega]" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" onchange="loadUbicaciones(this.value, ` + index + `)" required>
                             <option value="">Seleccionar...</option>
                         </select>
                     </td>
-                    <td class="px-4 py-3">
-                        <select name="detalles[` + index + `][id_ubicacion]" class="fi-input text-sm rounded py-1" required disabled>
+                    <td style="padding: 0.75rem;">
+                        <select name="detalles[` + index + `][id_ubicacion]" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" required disabled>
                             <option value="">Seleccionar bodega...</option>
                         </select>
                     </td>
-                    <td class="px-4 py-3">
-                        <input type="number" name="detalles[` + index + `][cantidad_recibida]" value="` + detalle.cantidad + `" min="0" step="0.01" class="fi-input text-sm rounded w-20 py-1" required>
+                    <td style="padding: 0.75rem;">
+                        <input type="number" name="detalles[` + index + `][cantidad_recibida]" value="` + detalle.cantidad + `" min="0" step="0.01" style="font-size: 0.875rem; width: 5rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" required>
                         <input type="hidden" name="detalles[` + index + `][id_variante]" value="` + detalle.id_variante + `">
                         <input type="hidden" name="detalles[` + index + `][cantidad_comprada]" value="` + detalle.cantidad + `">
                     </td>
@@ -310,6 +309,31 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
         }
         
         function submitRecepcion() {
+            const sucursal = document.getElementById('id_sucursal').value;
+            if (!sucursal) {
+                alert('La sucursal es obligatoria');
+                document.getElementById('id_sucursal').focus();
+                return;
+            }
+            
+            const bodegaSelects = document.querySelectorAll('select[name^="detalles["][name$="[id_bodega]"]');
+            for (let select of bodegaSelects) {
+                if (!select.value) {
+                    alert('La bodega es obligatoria');
+                    select.focus();
+                    return;
+                }
+            }
+            
+            const ubicacionSelects = document.querySelectorAll('select[name^="detalles["][name$="[id_ubicacion]"]');
+            for (let select of ubicacionSelects) {
+                if (!select.value) {
+                    alert('La ubicación es obligatoria');
+                    select.focus();
+                    return;
+                }
+            }
+            
             const form = document.getElementById('recepcion-form');
             const formData = new FormData(form);
             

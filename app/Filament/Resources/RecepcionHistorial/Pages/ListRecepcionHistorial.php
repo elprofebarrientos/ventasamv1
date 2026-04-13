@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\RecepcionHistorial\Pages;
 
 use App\Filament\Resources\RecepcionHistorial;
-use App\Models\RecepcionCompra;
+use App\Models\Compra;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Collection;
 
@@ -13,7 +13,7 @@ class ListRecepcionHistorial extends Page
 
     protected string $view = 'filament.resources.recepcion-historial.pages.list-recepcion-historial';
 
-    public Collection $recepciones;
+    public Collection $compras;
 
     public string $sortOrder = 'desc';
 
@@ -29,11 +29,9 @@ class ListRecepcionHistorial extends Page
 
     public function loadData(): void
     {
-        $this->recepciones = RecepcionCompra::with(['compra.proveedor', 'detalles.variante.producto'])
-            ->whereHas('compra', function ($q) {
-                $q->where('resultado_recepcion', 'Completa');
-            })
-            ->orderBy('fecha', $this->sortOrder)
+        $this->compras = Compra::with(['proveedor', 'detalles.variante.producto'])
+            ->where('resultado_recepcion', 'Completa')
+            ->orderBy('created_at', $this->sortOrder)
             ->get();
     }
 }

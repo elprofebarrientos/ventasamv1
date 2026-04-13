@@ -19,6 +19,8 @@ class RecepcionCompra extends Model
     protected $fillable = [
         'id_compra',
         'fecha',
+        'fecha_recepcion',
+        'numero_recepcion',
         'observacion',
         'estado',
         'created_by',
@@ -29,6 +31,7 @@ class RecepcionCompra extends Model
     {
         return [
             'fecha' => 'datetime',
+            'fecha_recepcion' => 'date',
         ];
     }
 

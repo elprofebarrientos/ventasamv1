@@ -14,15 +14,41 @@ class RecepcionController extends Controller
 {
     public function getDetalles($compraId)
     {
-        $detalles = \App\Models\CompraDetalle::with(['variante.producto', 'variante.valores.atributo'])
-            ->where('id_compra', $compraId)
-            ->get()
-            ->map(function ($detalle) {
-                $detalle->cantidad_pendiente = floatval($detalle->cantidad) - floatval($detalle->cantidad_recibida ?? 0);
-                return $detalle;
-            });
-        
-        return response()->json($detalles);
+        try {
+            $detalles = \App\Models\CompraDetalle::with(['variante.producto', 'variante.valores.atributo'])
+                ->where('id_compra', $compraId)
+                ->get()
+                ->map(function ($detalle) {
+                    $detalle->cantidad_pendiente = floatval($detalle->cantidad) - floatval($detalle->cantidad_recibida ?? 0);
+                    
+                    $recepcionesDetalle = RecepcionDetalle::with(['recepcion', 'bodega.sucursal', 'ubicacion'])
+                        ->where('id_variante', $detalle->id_variante)
+                        ->whereHas('recepcion', function ($q) use ($detalle) {
+                            $q->where('id_compra', $detalle->id_compra);
+                        })
+                        ->get();
+                    
+                    $detalle->recepciones = $recepcionesDetalle->map(function ($rd) {
+                        $sucursal = null;
+                        if ($rd->bodega && $rd->bodega->sucursal) {
+                            $sucursal = $rd->bodega->sucursal->nombre;
+                        }
+                        return [
+                            'id_recepcion' => $rd->id_recepcion,
+                            'cantidad_recibida' => $rd->cantidad_recibida,
+                            'bodega' => $rd->bodega ? $rd->bodega->nombre : null,
+                            'ubicacion' => $rd->ubicacion ? $rd->ubicacion->nombre : null,
+                            'sucursal' => $sucursal,
+                        ];
+                    });
+                    
+                    return $detalle;
+                });
+            
+            return response()->json($detalles);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
     
     public function getRecepcionesPorCompra($compraId)
@@ -51,6 +77,32 @@ class RecepcionController extends Controller
             ->get();
         
         return response()->json($detalles);
+    }
+    
+    public function getRecepcion($idRecepcion)
+    {
+        $recepcion = RecepcionCompra::with(['compra.proveedor', 'detalles.variante.producto', 'detalles.bodega', 'detalles.ubicacion'])
+            ->where('id_recepcion', $idRecepcion)
+            ->first();
+        
+        return response()->json($recepcion);
+    }
+    
+    public function update(Request $request, $idRecepcion)
+    {
+        $request->validate([
+            'fecha_recepcion' => 'nullable|date',
+            'numero_recepcion' => 'nullable|string|max:255',
+            'observacion' => 'nullable|string',
+        ]);
+        
+        $recepcion = RecepcionCompra::findOrFail($idRecepcion);
+        $recepcion->fecha_recepcion = $request->fecha_recepcion;
+        $recepcion->numero_recepcion = $request->numero_recepcion;
+        $recepcion->observacion = $request->observacion;
+        $recepcion->save();
+        
+        return response()->json(['success' => true, 'message' => 'Recepción actualizada correctamente']);
     }
     
     public function store(Request $request)

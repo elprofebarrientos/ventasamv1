@@ -19,6 +19,7 @@ class CompraDetalle extends Model
         'id_compra',
         'id_variante',
         'cantidad',
+        'cantidad_recibida',
         'costo_unitario',
         'porcentaje_iva',
         'created_by',

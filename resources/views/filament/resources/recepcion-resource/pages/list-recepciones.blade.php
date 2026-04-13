@@ -75,12 +75,22 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
                                     </span>
                                 </td>
                                 <td style="padding: 1.25rem; text-align: right;">
-                                    <button 
-                                        type="button"
-                                        onclick="openRecepcionModal({{ $compra->id_compra }}, '{{ addslashes($compra->proveedor->razon_social ?? 'N/A') }}', '{{ $compra->numero_factura ?? 'N/A' }}')"
-                                        style="background-color: #2563eb; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer;">
-                                        Recepcionar
-                                    </button>
+                                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                                        <button 
+                                            type="button"
+                                            onclick="verRecepciones({{ $compra->id_compra }}, '{{ addslashes($compra->proveedor->razon_social ?? 'N/A') }}', '{{ $compra->numero_factura ?? 'N/A' }}')"
+                                            style="background-color: #6b7280; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer;">
+                                            Ver
+                                        </button>
+                                        @if($compra->resultado_recepcion != 'Completa')
+                                        <button 
+                                            type="button"
+                                            onclick="openRecepcionModal({{ $compra->id_compra }}, '{{ addslashes($compra->proveedor->razon_social ?? 'N/A') }}', '{{ $compra->numero_factura ?? 'N/A' }}')"
+                                            style="background-color: #2563eb; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer;">
+                                            Recepcionar
+                                        </button>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -114,11 +124,6 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
                         @csrf
                         <input type="hidden" name="id_compra" id="id_compra">
                         
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Observación</label>
-                            <textarea name="observacion" id="observacion" rows="2" placeholder="Observación opcional..." style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;"></textarea>
-                        </div>
-
                         <div style="margin-bottom: 1rem;">
                             <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Sucursal</label>
                             <select name="id_sucursal" id="id_sucursal" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;" onchange="loadBodegasPorSucursal(this.value)" required>
@@ -135,15 +140,22 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
                                             <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Producto</th>
                                             <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Atributos</th>
                                             <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Cantidad</th>
+                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Recibida</th>
+                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Recibido Ant.</th>
+                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Faltante</th>
                                             <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Bodega</th>
                                             <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Ubicación</th>
-                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Recibida</th>
                                         </tr>
                                     </thead>
                                     <tbody id="detalles-body" style="background-color: white;">
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Observación</label>
+                            <textarea name="observacion" id="observacion" rows="2" placeholder="Observación opcional..." style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;"></textarea>
                         </div>
                     </form>
                 </div>
@@ -153,6 +165,92 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
                     </button>
                     <button type="button" onclick="closeRecepcionModal()" style="margin-top: 0.75rem; width: 100%; justify-content: center; padding: 0.5rem 1rem; background-color: #d1d5db; color: #374151; border-radius: 0.5rem; font-weight: 500;">
                         Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ver-recepcion-modal" style="display: none; position: fixed; inset: 0; z-index: 50; overflow-y: auto;" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div style="display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 1rem;">
+            <div style="position: fixed; inset: 0; background-color: rgba(17, 24, 39, 0.75);" onclick="closeVerRecepcionModal()"></div>
+            <div style="position: relative; transform: translateY(0); overflow: hidden; border-radius: 0.75rem; background-color: white; text-align: left; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); width: 100%; max-width: 72rem;">
+                <div style="background-color: white; padding: 1.25rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <h3 style="font-size: 1.25rem; font-weight: 600; color: #111827;">
+                                Recepciones Registradas
+                            </h3>
+                            <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;" id="ver-compra-info"></p>
+                        </div>
+                        <button type="button" onclick="closeVerRecepcionModal()" style="color: #9ca3af;">
+                            <svg style="height: 1.5rem; width: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div style="overflow: hidden; border: 1px solid #e5e7eb; border-radius: 0.5rem;">
+                        <table style="width: 100%; min-width: 100%;">
+                            <thead>
+                                <tr style="background-color: #f9fafb;">
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Fecha</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Observación</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Productos</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recepciones-body" style="background-color: white;">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div style="background-color: #f9fafb; padding: 0.75rem; display: flex; flex-direction: row-reverse; padding: 0.75rem 1.5rem;">
+                    <button type="button" onclick="closeVerRecepcionModal()" style="width: 100%; justify-content: center; padding: 0.5rem 1rem; background-color: #6b7280; color: white; border-radius: 0.5rem; font-weight: 500;">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detalle-recepcion-modal" style="display: none; position: fixed; inset: 0; z-index: 60; overflow-y: auto;" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div style="display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 1rem;">
+            <div style="position: fixed; inset: 0; background-color: rgba(17, 24, 39, 0.75);" onclick="closeDetalleRecepcionModal()"></div>
+            <div style="position: relative; transform: translateY(0); overflow: hidden; border-radius: 0.75rem; background-color: white; text-align: left; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); width: 100%; max-width: 72rem;">
+                <div style="background-color: white; padding: 1.25rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <h3 style="font-size: 1.25rem; font-weight: 600; color: #111827;">
+                                Detalle de Recepción
+                            </h3>
+                        </div>
+                        <button type="button" onclick="closeDetalleRecepcionModal()" style="color: #9ca3af;">
+                            <svg style="height: 1.5rem; width: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div style="overflow: hidden; border: 1px solid #e5e7eb; border-radius: 0.5rem;">
+                        <table style="width: 100%; min-width: 100%;">
+                            <thead>
+                                <tr style="background-color: #f9fafb;">
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Producto</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Atributos</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Cantidad</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Bodega</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Ubicación</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detalle-recepcion-body" style="background-color: white;">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div style="background-color: #f9fafb; padding: 0.75rem; display: flex; flex-direction: row-reverse; padding: 0.75rem 1.5rem;">
+                    <button type="button" onclick="closeDetalleRecepcionModal()" style="width: 100%; justify-content: center; padding: 0.5rem 1rem; background-color: #6b7280; color: white; border-radius: 0.5rem; font-weight: 500;">
+                        Cerrar
                     </button>
                 </div>
             </div>
@@ -233,10 +331,24 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
                 
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #e5e7eb';
+                const cantidadComprada = parseFloat(detalle.cantidad);
+                const cantidadRecibidaAnterior = parseFloat(detalle.cantidad_recibida) || 0;
+                const cantidadPendiente = parseFloat(detalle.cantidad_pendiente);
+                
+                let valorInicial = cantidadPendiente > 0 ? cantidadPendiente : 0;
+                
                 row.innerHTML = `
                     <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">` + (detalle.variante && detalle.variante.producto ? detalle.variante.producto.nombre : 'N/A') + `</td>
                     <td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">` + atributosTexto + `</td>
-                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827; font-weight: 500;">` + parseFloat(detalle.cantidad).toFixed(2) + `</td>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827; font-weight: 500;">` + cantidadComprada.toFixed(2) + `</td>
+                    <td style="padding: 0.75rem;">
+                        <input type="number" name="detalles[` + index + `][cantidad_recibida]" id="cantidad_recibida_` + index + `" value="` + valorInicial + `" min="0" max="` + cantidadPendiente + `" step="0.01" style="font-size: 0.875rem; width: 5rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" onchange="calcularFaltante(` + index + `, ` + cantidadPendiente + `)" oninput="calcularFaltante(` + index + `, ` + cantidadPendiente + `)" required>
+                        <input type="hidden" name="detalles[` + index + `][id_variante]" value="` + detalle.id_variante + `">
+                        <input type="hidden" name="detalles[` + index + `][cantidad_comprada]" value="` + cantidadComprada + `">
+                        <input type="hidden" name="detalles[` + index + `][id_detalle]" value="` + detalle.id_detalle + `">
+                    </td>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; font-weight: 600; color: #059669;">` + cantidadRecibidaAnterior.toFixed(2) + `</td>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; font-weight: 600;" id="faltante_` + index + `">` + cantidadPendiente.toFixed(2) + `</td>
                     <td style="padding: 0.75rem;">
                         <select name="detalles[` + index + `][id_bodega]" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" onchange="loadUbicaciones(this.value, ` + index + `)" required>
                             <option value="">Seleccionar...</option>
@@ -246,11 +358,6 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
                         <select name="detalles[` + index + `][id_ubicacion]" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" required disabled>
                             <option value="">Seleccionar bodega...</option>
                         </select>
-                    </td>
-                    <td style="padding: 0.75rem;">
-                        <input type="number" name="detalles[` + index + `][cantidad_recibida]" value="` + detalle.cantidad + `" min="0" step="0.01" style="font-size: 0.875rem; width: 5rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" required>
-                        <input type="hidden" name="detalles[` + index + `][id_variante]" value="` + detalle.id_variante + `">
-                        <input type="hidden" name="detalles[` + index + `][cantidad_comprada]" value="` + detalle.cantidad + `">
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -308,6 +415,22 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
                 });
         }
         
+        function calcularFaltante(index, cantidadComprada) {
+            const input = document.getElementById('cantidad_recibida_' + index);
+            const faltanteSpan = document.getElementById('faltante_' + index);
+            let cantidadRecibida = parseFloat(input.value) || 0;
+            
+            if (cantidadRecibida > cantidadComprada) {
+                cantidadRecibida = cantidadComprada;
+                input.value = cantidadRecibida;
+                alert('La cantidad recibida no puede ser mayor a la cantidad comprada');
+            }
+            
+            const faltante = cantidadComprada - cantidadRecibida;
+            faltanteSpan.textContent = faltante.toFixed(2);
+            faltanteSpan.style.color = faltante > 0 ? '#dc2626' : '#059669';
+        }
+        
         function submitRecepcion() {
             const sucursal = document.getElementById('id_sucursal').value;
             if (!sucursal) {
@@ -357,6 +480,95 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
             .catch(error => {
                 alert('Error al guardar la recepción');
             });
+        }
+        
+        function verRecepciones(compraId, proveedor, numeroFactura) {
+            document.getElementById('ver-compra-info').textContent = 'Proveedor: ' + proveedor + ' - Factura: ' + numeroFactura;
+            
+            fetch('/api/recepciones/por-compra/' + compraId)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Recepciones:', data);
+                    renderRecepciones(data);
+                    document.getElementById('ver-recepcion-modal').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar las recepciones: ' + error.message);
+                });
+        }
+        
+        function renderRecepciones(recepciones) {
+            const tbody = document.getElementById('recepciones-body');
+            tbody.innerHTML = '';
+            
+            if (recepciones.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="padding: 1rem; text-align: center; color: #6b7280;">No hay recepciones registradas</td></tr>';
+                return;
+            }
+            
+            recepciones.forEach(function(recepcion) {
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid #e5e7eb';
+                row.innerHTML = `
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${recepcion.fecha}</td>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${recepcion.observacion || 'Sin observación'}</td>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${recepcion.detalles.length}</td>
+                    <td style="padding: 0.75rem;">
+                        <button type="button" onclick="verDetalleRecepcion(${recepcion.id_recepcion})" style="background-color: #2563eb; color: white; padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 500; border: none; cursor: pointer;">
+                            Ver Detalle
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function verDetalleRecepcion(idRecepcion) {
+            fetch('/api/recepciones/' + idRecepcion + '/detalles')
+                .then(response => response.json())
+                .then(data => {
+                    renderDetalleRecepcion(data);
+                    document.getElementById('detalle-recepcion-modal').style.display = 'block';
+                });
+        }
+        
+        function renderDetalleRecepcion(detalles) {
+            const tbody = document.getElementById('detalle-recepcion-body');
+            tbody.innerHTML = '';
+            
+            detalles.forEach(function(detalle) {
+                let atributosTexto = 'N/A';
+                if (detalle.variante && detalle.variante.valores && detalle.variante.valores.length > 0) {
+                    atributosTexto = detalle.variante.valores.map(function(v) {
+                        return v.atributo.nombre + ': ' + v.valor;
+                    }).join(' | ');
+                }
+                
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid #e5e7eb';
+                row.innerHTML = `
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${detalle.variante && detalle.variante.producto ? detalle.variante.producto.nombre : 'N/A'}</td>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">${atributosTexto}</td>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${parseFloat(detalle.cantidad_recibida).toFixed(2)}</td>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">${detalle.bodega ? detalle.bodega.nombre : 'N/A'}</td>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">${detalle.ubicacion ? detalle.ubicacion.nombre : 'N/A'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function closeVerRecepcionModal() {
+            document.getElementById('ver-recepcion-modal').style.display = 'none';
+        }
+        
+        function closeDetalleRecepcionModal() {
+            document.getElementById('detalle-recepcion-modal').style.display = 'none';
         }
     </script>
 </x-filament-panels::page>

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Products;
 use App\Filament\Resources\AtributoResource\Pages;
 use App\Filament\Resources\AtributoResource\RelationManagers;
 use App\Models\Atributo;
@@ -12,10 +13,13 @@ use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class AtributoResource extends Resource
 {
     protected static ?string $model = Atributo::class;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Productos';
 
     protected static ?string $navigationLabel = 'Atributos';
 

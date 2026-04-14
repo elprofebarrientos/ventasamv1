@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Products;
 use App\Filament\Resources\ImpuestoResource\Pages;
 use App\Models\Impuesto;
 use Filament\Actions\EditAction;
@@ -13,10 +14,13 @@ use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ImpuestoResource extends Resource
 {
     protected static ?string $model = Impuesto::class;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Productos';
 
     protected static ?string $navigationLabel = 'Impuestos';
 

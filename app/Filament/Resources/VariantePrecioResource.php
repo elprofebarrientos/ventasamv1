@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Products;
 use App\Models\VariantePrecio;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -20,10 +21,13 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Livewire\Component;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class VariantePrecioResource extends Resource
 {
     protected static ?string $model = VariantePrecio::class;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Productos';
 
     protected static ?string $navigationLabel = 'Precios de Variantes';
 

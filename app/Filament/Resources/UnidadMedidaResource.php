@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Products;
 use App\Filament\Resources\UnidadMedidaResource\Pages;
 use App\Models\UnidadMedida;
 use Filament\Actions\CreateAction;
@@ -12,10 +13,13 @@ use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class UnidadMedidaResource extends Resource
 {
     protected static ?string $model = UnidadMedida::class;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Productos';
 
     protected static ?string $navigationLabel = 'Unidades de Medida';
 

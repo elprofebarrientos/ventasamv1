@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Products;
 use App\Filament\Resources\ProductoResource\Pages;
 use App\Filament\Resources\ProductoResource\RelationManagers;
 use App\Models\Producto;
@@ -14,10 +15,13 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use UnitEnum;
 
 class ProductoResource extends Resource
 {
     protected static ?string $model = Producto::class;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Productos';
 
     protected static ?string $navigationLabel = 'Productos';
 

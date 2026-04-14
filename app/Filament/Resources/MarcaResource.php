@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Products;
 use App\Filament\Resources\MarcaResource\Pages;
 use App\Models\Marca;
 use Filament\Actions\CreateAction;
@@ -12,10 +13,13 @@ use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class MarcaResource extends Resource
 {
     protected static ?string $model = Marca::class;
+
+    protected static string | UnitEnum | null $navigationGroup = 'Productos';
 
     protected static ?string $navigationLabel = 'Marcas';
 

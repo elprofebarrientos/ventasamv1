@@ -16,12 +16,15 @@ use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class CodigoUsoResource extends Resource
 {
     protected static ?string $model = CodigoUso::class;
 
     protected static ?string $navigationLabel = 'Códigos Usados';
+
+    protected static string | UnitEnum | null $navigationGroup = 'Configurar';
 
     protected static ?string $label = 'Código Usado';
 

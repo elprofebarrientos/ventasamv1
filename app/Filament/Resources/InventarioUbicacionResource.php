@@ -7,6 +7,7 @@ use App\Models\InventarioUbicacion;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class InventarioUbicacionResource extends Resource
 {
@@ -15,6 +16,8 @@ class InventarioUbicacionResource extends Resource
     protected static \BackedEnum | string | null $navigationIcon = 'heroicon-o-archive-box';
 
     protected static ?string $navigationLabel = 'Inventario Ubicaciones';
+
+    protected static string | UnitEnum | null $navigationGroup = 'Compras';
 
     protected static ?string $modelLabel = 'Inventario de Ubicación';
 

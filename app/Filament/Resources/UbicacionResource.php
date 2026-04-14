@@ -11,6 +11,7 @@ use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class UbicacionResource extends Resource
 {
@@ -19,6 +20,8 @@ class UbicacionResource extends Resource
     protected static \BackedEnum | string | null $navigationIcon = 'heroicon-o-map-pin';
 
     protected static ?string $navigationLabel = 'Ubicaciones';
+
+    protected static string | UnitEnum | null $navigationGroup = 'Configurar';
 
     protected static ?string $modelLabel = 'Ubicación';
 

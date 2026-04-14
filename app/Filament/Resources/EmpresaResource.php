@@ -22,12 +22,15 @@ use Filament\Tables\Table;
 use App\Models\Country;
 use App\Models\Department;
 use App\Models\City;
+use UnitEnum;
 
 class EmpresaResource extends Resource
 {
     protected static ?string $model = Empresa::class;
 
     protected static ?string $navigationLabel = 'Empresas';
+
+    protected static string | UnitEnum | null $navigationGroup = 'Configurar';
 
     protected static ?string $label = 'Empresa';
 

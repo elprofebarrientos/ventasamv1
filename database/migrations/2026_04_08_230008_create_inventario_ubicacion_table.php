@@ -15,16 +15,21 @@ return new class extends Migration
             $table->id('id_inventario');
 
             $table->unsignedBigInteger('id_variante');
+            $table->unsignedBigInteger('id_bodega');
             $table->unsignedBigInteger('id_ubicacion');
 
             $table->decimal('stock_actual', 12, 2)->default(0);
             $table->decimal('stock_reservado', 12, 2)->default(0);
+
+            $table->string('lote')->nullable();
+            $table->date('fecha_vencimiento')->nullable();
 
             $table->timestamps();
 
             $table->unique(['id_variante', 'id_ubicacion']);
 
             $table->foreign('id_variante')->references('id_variante')->on('producto_variante')->cascadeOnDelete();
+            $table->foreign('id_bodega')->references('id_bodega')->on('bodega')->cascadeOnDelete();
             $table->foreign('id_ubicacion')->references('id_ubicacion')->on('ubicaciones')->cascadeOnDelete();
         });
     }

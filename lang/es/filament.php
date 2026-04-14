@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'unsaved_changes_alert' => [
+        'body' => 'Tienes cambios sin guardar. ¿Estás seguro de que quieres abandonar esta página?',
+    ],
     'resources' => [
         'bodega' => [
             'label' => 'Bodega',

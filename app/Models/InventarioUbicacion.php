@@ -17,9 +17,12 @@ class InventarioUbicacion extends Model
 
     protected $fillable = [
         'id_variante',
+        'id_bodega',
         'id_ubicacion',
         'stock_actual',
         'stock_reservado',
+        'lote',
+        'fecha_vencimiento',
         'created_by',
         'updated_by',
     ];
@@ -29,12 +32,18 @@ class InventarioUbicacion extends Model
         return [
             'stock_actual' => 'decimal:2',
             'stock_reservado' => 'decimal:2',
+            'fecha_vencimiento' => 'date',
         ];
     }
 
     public function variante(): BelongsTo
     {
         return $this->belongsTo(ProductoVariante::class, 'id_variante', 'id_variante');
+    }
+
+    public function bodega(): BelongsTo
+    {
+        return $this->belongsTo(Bodega::class, 'id_bodega', 'id_bodega');
     }
 
     public function ubicacion(): BelongsTo

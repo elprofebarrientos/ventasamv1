@@ -104,7 +104,7 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
     <div id="recepcion-modal" style="display: none; position: fixed; inset: 0; z-index: 50; overflow-y: auto;" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div style="display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 1rem;">
             <div style="position: fixed; inset: 0; background-color: rgba(17, 24, 39, 0.75);" onclick="closeRecepcionModal()"></div>
-            <div style="position: relative; transform: translateY(0); overflow: hidden; border-radius: 0.75rem; background-color: white; text-align: left; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); width: 100%; max-width: 72rem;">
+            <div style="position: relative; transform: translateY(0); overflow: hidden; border-radius: 0.75rem; background-color: white; text-align: left; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); width: 100%; max-width: 100rem;">
                 <div style="background-color: white; padding: 1.25rem;">
                     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem; margin-bottom: 1rem;">
                         <div>
@@ -136,17 +136,19 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
                             <div style="overflow: hidden; border: 1px solid #e5e7eb; border-radius: 0.5rem;">
                                 <table style="width: 100%; min-width: 100%;">
                                     <thead>
-                                        <tr style="background-color: #f9fafb;">
-                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Producto</th>
-                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Atributos</th>
-                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Cantidad</th>
-                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Recibida</th>
-                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Recibido Ant.</th>
-                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Faltante</th>
-                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Bodega</th>
-                                            <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Ubicación</th>
-                                        </tr>
-                                    </thead>
+                                <tr style="background-color: #f9fafb;">
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Producto</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Atributos</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Cantidad</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Recibida</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Recibido Ant.</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Faltante</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Bodega</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase;">Ubicación</th>
+                                    <th id="recepcion-lote-header" style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; display: none;">Lote</th>
+                                    <th id="recepcion-vencimiento-header" style="padding: 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; display: none;">Vencimiento</th>
+                                </tr>
+                            </thead>
                                     <tbody id="detalles-body" style="background-color: white;">
                                     </tbody>
                                 </table>
@@ -321,7 +323,28 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
             const tbody = document.getElementById('detalles-body');
             tbody.innerHTML = '';
             
-            detalles.forEach(function(detalle, index) {
+            let tieneLote = false;
+            let tieneVencimiento = false;
+            
+            detalles.forEach(function(detalle) {
+                if (detalle.variante_tiene_lote) tieneLote = true;
+                if (detalle.variante_tiene_fecha_vencimiento) tieneVencimiento = true;
+            });
+            
+            var loteHeader = document.getElementById('recepcion-lote-header');
+            var vencimientoHeader = document.getElementById('recepcion-vencimiento-header');
+            
+            if (loteHeader) loteHeader.style.display = tieneLote ? 'table-cell' : 'none';
+            if (vencimientoHeader) vencimientoHeader.style.display = tieneVencimiento ? 'table-cell' : 'none';
+            
+            document.querySelectorAll('.recepcion-lote-cell').forEach(function(el) {
+                el.style.display = tieneLote ? 'table-cell' : 'none';
+            });
+            document.querySelectorAll('.recepcion-vencimiento-cell').forEach(function(el) {
+                el.style.display = tieneVencimiento ? 'table-cell' : 'none';
+            });
+            
+detalles.forEach(function(detalle, index) {
                 let atributosTexto = 'N/A';
                 if (detalle.variante && detalle.variante.valores && detalle.variante.valores.length > 0) {
                     atributosTexto = detalle.variante.valores.map(function(v) {
@@ -337,33 +360,23 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
                 
                 let valorInicial = cantidadPendiente > 0 ? cantidadPendiente : 0;
                 
-                row.innerHTML = `
-                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">` + (detalle.variante && detalle.variante.producto ? detalle.variante.producto.nombre : 'N/A') + `</td>
-                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">` + atributosTexto + `</td>
-                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827; font-weight: 500;">` + cantidadComprada.toFixed(2) + `</td>
-                    <td style="padding: 0.75rem;">
-                        <input type="number" name="detalles[` + index + `][cantidad_recibida]" id="cantidad_recibida_` + index + `" value="` + valorInicial + `" min="0" max="` + cantidadPendiente + `" step="0.01" style="font-size: 0.875rem; width: 5rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" onchange="calcularFaltante(` + index + `, ` + cantidadPendiente + `)" oninput="calcularFaltante(` + index + `, ` + cantidadPendiente + `)" required>
-                        <input type="hidden" name="detalles[` + index + `][id_variante]" value="` + detalle.id_variante + `">
-                        <input type="hidden" name="detalles[` + index + `][cantidad_comprada]" value="` + cantidadComprada + `">
-                        <input type="hidden" name="detalles[` + index + `][id_detalle]" value="` + detalle.id_detalle + `">
-                    </td>
-                    <td style="padding: 0.75rem; font-size: 0.875rem; font-weight: 600; color: #059669;">` + cantidadRecibidaAnterior.toFixed(2) + `</td>
-                    <td style="padding: 0.75rem; font-size: 0.875rem; font-weight: 600;" id="faltante_` + index + `">` + cantidadPendiente.toFixed(2) + `</td>
-                    <td style="padding: 0.75rem;">
-                        <select name="detalles[` + index + `][id_bodega]" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" onchange="loadUbicaciones(this.value, ` + index + `)" required>
-                            <option value="">Seleccionar...</option>
-                        </select>
-                    </td>
-                    <td style="padding: 0.75rem;">
-                        <select name="detalles[` + index + `][id_ubicacion]" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" required disabled>
-                            <option value="">Seleccionar bodega...</option>
-                        </select>
-                    </td>
-                `;
+                var cells = [];
+                cells.push('<td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">' + (detalle.variante && detalle.variante.producto ? detalle.variante.producto.nombre : 'N/A') + '</td>');
+                cells.push('<td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">' + atributosTexto + '</td>');
+                cells.push('<td style="padding: 0.75rem; font-size: 0.875rem; color: #111827; font-weight: 500;">' + cantidadComprada.toFixed(2) + '</td>');
+                cells.push('<td style="padding: 0.75rem;"><input type="number" name="detalles[' + index + '][cantidad_recibida]" id="cantidad_recibida_' + index + '" value="' + valorInicial + '" min="0" max="' + cantidadPendiente + '" step="0.01" style="font-size: 0.875rem; width: 5rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" onchange="calcularFaltante(' + index + ', ' + cantidadPendiente + ')" oninput="calcularFaltante(' + index + ', ' + cantidadPendiente + ')" required><input type="hidden" name="detalles[' + index + '][id_variante]" value="' + detalle.id_variante + '"><input type="hidden" name="detalles[' + index + '][cantidad_comprada]" value="' + cantidadComprada + '"><input type="hidden" name="detalles[' + index + '][id_detalle]" value="' + detalle.id_detalle + '"></td>');
+                cells.push('<td style="padding: 0.75rem; font-size: 0.875rem; font-weight: 600; color: #059669;">' + cantidadRecibidaAnterior.toFixed(2) + '</td>');
+                cells.push('<td style="padding: 0.75rem; font-size: 0.875rem; font-weight: 600;" id="faltante_' + index + '">' + cantidadPendiente.toFixed(2) + '</td>');
+                cells.push('<td style="padding: 0.75rem;"><select name="detalles[' + index + '][id_bodega]" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" onchange="loadUbicaciones(this.value, ' + index + ')" required><option value="">Seleccionar...</option></select></td>');
+                cells.push('<td style="padding: 0.75rem;"><select name="detalles[' + index + '][id_ubicacion]" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;" required disabled><option value="">Seleccionar bodega...</option></select></td>');
+                
+                cells.push('<td class="recepcion-lote-cell" style="padding: 0.75rem; display: ' + (tieneLote ? 'table-cell' : 'none') + ';"><input type="text" name="detalles[' + index + '][lote]" placeholder="Lote" style="font-size: 0.875rem; width: 6rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;"></td>');
+                
+                cells.push('<td class="recepcion-vencimiento-cell" style="padding: 0.75rem; display: ' + (tieneVencimiento ? 'table-cell' : 'none') + ';"><input type="date" name="detalles[' + index + '][fecha_vencimiento]" style="font-size: 0.875rem; width: 8rem; padding: 0.25rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem;"></td>');
+                
+                row.innerHTML = cells.join('');
                 tbody.appendChild(row);
             });
-            
-            loadBodegasPorSucursalDesdeDetalle();
         }
         
         let bodegas = [];
@@ -520,19 +533,27 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
                     <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${recepcion.observacion || 'Sin observación'}</td>
                     <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${recepcion.detalles.length}</td>
                     <td style="padding: 0.75rem;">
-                        <button type="button" onclick="verDetalleRecepcion(${recepcion.id_recepcion})" style="background-color: #2563eb; color: white; padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 500; border: none; cursor: pointer;">
+                        <button type="button" class="btn-ver-detalle" data-id="${recepcion.id_recepcion}" style="background-color: #2563eb; color: white; padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 500; border: none; cursor: pointer;">
                             Ver Detalle
                         </button>
                     </td>
                 `;
                 tbody.appendChild(row);
             });
+            
+            document.querySelectorAll('.btn-ver-detalle').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var idRecepcion = parseInt(this.getAttribute('data-id'));
+                    verDetalleRecepcion(idRecepcion);
+                });
+            });
         }
         
         function verDetalleRecepcion(idRecepcion) {
-            fetch('/api/recepciones/' + idRecepcion + '/detalles')
-                .then(response => response.json())
-                .then(data => {
+            var url = '/api/recepciones/' + idRecepcion + '/detalles';
+            fetch(url)
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
                     renderDetalleRecepcion(data);
                     document.getElementById('detalle-recepcion-modal').style.display = 'block';
                 });
@@ -541,6 +562,19 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
         function renderDetalleRecepcion(detalles) {
             const tbody = document.getElementById('detalle-recepcion-body');
             tbody.innerHTML = '';
+            
+            let tieneLote = false;
+            let tieneVencimiento = false;
+            
+            detalles.forEach(function(detalle) {
+                if (detalle.variante) {
+                    if (detalle.variante.tiene_lote === true || detalle.variante.tiene_lote === 1) tieneLote = true;
+                    if (detalle.variante.tiene_fecha_vencimiento === true || detalle.variante.tiene_fecha_vencimiento === 1) tieneVencimiento = true;
+                }
+            });
+            
+            document.getElementById('recepcion-lote-header').style.display = tieneLote ? '' : 'none';
+            document.getElementById('recepcion-vencimiento-header').style.display = tieneVencimiento ? '' : 'none';
             
             detalles.forEach(function(detalle) {
                 let atributosTexto = 'N/A';
@@ -552,13 +586,16 @@ $compras = \App\Models\Compra::with(['proveedor', 'detalles.variante.producto'])
                 
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #e5e7eb';
-                row.innerHTML = `
-                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${detalle.variante && detalle.variante.producto ? detalle.variante.producto.nombre : 'N/A'}</td>
-                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">${atributosTexto}</td>
-                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${parseFloat(detalle.cantidad_recibida).toFixed(2)}</td>
-                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">${detalle.bodega ? detalle.bodega.nombre : 'N/A'}</td>
-                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">${detalle.ubicacion ? detalle.ubicacion.nombre : 'N/A'}</td>
-                `;
+                
+                let loteCell = tieneLote ? '<td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">' + (detalle.lote || '-') + '</td>' : '';
+                let vencimientoCell = tieneVencimiento ? '<td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">' + (detalle.fecha_vencimiento || '-') + '</td>' : '';
+                
+                row.innerHTML = '<td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">' + (detalle.variante && detalle.variante.producto ? detalle.variante.producto.nombre : 'N/A') + '</td>' +
+                    '<td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">' + atributosTexto + '</td>' +
+                    '<td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">' + parseFloat(detalle.cantidad_recibida).toFixed(2) + '</td>' +
+                    '<td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">' + (detalle.bodega ? detalle.bodega.nombre : 'N/A') + '</td>' +
+                    '<td style="padding: 0.75rem; font-size: 0.875rem; color: #4b5563;">' + (detalle.ubicacion ? detalle.ubicacion.nombre : 'N/A') + '</td>' +
+                    loteCell + vencimientoCell;
                 tbody.appendChild(row);
             });
         }

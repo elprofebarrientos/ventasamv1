@@ -21,6 +21,8 @@ class RecepcionDetalle extends Model
         'id_bodega',
         'id_ubicacion',
         'cantidad_recibida',
+        'lote',
+        'fecha_vencimiento',
         'created_by',
         'updated_by',
     ];
@@ -29,6 +31,7 @@ class RecepcionDetalle extends Model
     {
         return [
             'cantidad_recibida' => 'decimal:2',
+            'fecha_vencimiento' => 'date',
         ];
     }
 

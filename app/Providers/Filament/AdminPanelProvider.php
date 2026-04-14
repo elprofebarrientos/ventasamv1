@@ -11,6 +11,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
+use Filament\Navigation\NavigationGroup;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -34,8 +35,15 @@ class AdminPanelProvider extends PanelProvider
             ->spa()
             ->unsavedChangesAlerts()
             ->navigationGroups([
-                'Configurar',
-                'Compras',
+                NavigationGroup::make()
+                    ->label('Configurar')
+                    ->icon('heroicon-o-cog-6-tooth'),
+                NavigationGroup::make()
+                    ->label('Productos')
+                    ->icon('heroicon-o-shopping-bag'),
+                NavigationGroup::make()
+                    ->label('Compras')
+                    ->icon('heroicon-o-shopping-cart'),
             ])
             ->colors([
                 'primary' => Color::Amber,

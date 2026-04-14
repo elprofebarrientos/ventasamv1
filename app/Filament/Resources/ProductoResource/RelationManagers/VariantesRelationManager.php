@@ -34,6 +34,12 @@ class VariantesRelationManager extends RelationManager
                     ->label('Código de Barras')
                     ->maxLength(100)
                     ->columnSpan(1),
+                Forms\Components\Toggle::make('tiene_lote')
+                    ->label('Tiene Lote')
+                    ->columnSpan(1),
+                Forms\Components\Toggle::make('tiene_fecha_vencimiento')
+                    ->label('Tiene Fecha Vencimiento')
+                    ->columnSpan(1),
                 Forms\Components\Toggle::make('activo')
                     ->label('Activo')
                     ->default(true)
@@ -139,6 +145,12 @@ class VariantesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('codigo_barras')
                     ->label('Código de Barras')
                     ->searchable(),
+                Tables\Columns\IconColumn::make('tiene_lote')
+                    ->label('Lote')
+                    ->boolean(),
+                Tables\Columns\IconColumn::make('tiene_fecha_vencimiento')
+                    ->label('Vencimiento')
+                    ->boolean(),
                 Tables\Columns\IconColumn::make('activo')
                     ->label('Activo')
                     ->boolean(),

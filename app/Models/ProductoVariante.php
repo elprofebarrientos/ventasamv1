@@ -21,6 +21,8 @@ class ProductoVariante extends Model
         'id_producto',
         'sku',
         'codigo_barras',
+        'tiene_lote',
+        'tiene_fecha_vencimiento',
         'imagenes_json',
         'activo',
         'created_by',
@@ -33,6 +35,8 @@ class ProductoVariante extends Model
             'id_producto' => 'integer',
             'imagenes_json' => 'array',
             'activo' => 'boolean',
+            'tiene_lote' => 'boolean',
+            'tiene_fecha_vencimiento' => 'boolean',
         ];
     }
 

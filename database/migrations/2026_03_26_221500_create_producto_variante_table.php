@@ -13,6 +13,8 @@ return new class extends Migration
             $table->unsignedBigInteger('id_producto');
             $table->string('sku', 100)->nullable();
             $table->string('codigo_barras', 100)->nullable();
+            $table->boolean('tiene_lote')->default(false);
+            $table->boolean('tiene_fecha_vencimiento')->default(false);
             $table->json('imagenes_json')->nullable();
             $table->boolean('activo')->default(true);
             $table->timestamps();

@@ -21,6 +21,9 @@ class RecepcionController extends Controller
                 ->map(function ($detalle) {
                     $detalle->cantidad_pendiente = floatval($detalle->cantidad) - floatval($detalle->cantidad_recibida ?? 0);
                     
+                    $detalle->variante_tiene_lote = $detalle->variante ? (bool) $detalle->variante->tiene_lote : false;
+                    $detalle->variante_tiene_fecha_vencimiento = $detalle->variante ? (bool) $detalle->variante->tiene_fecha_vencimiento : false;
+                    
                     $recepcionesDetalle = RecepcionDetalle::with(['recepcion', 'bodega.sucursal', 'ubicacion'])
                         ->where('id_variante', $detalle->id_variante)
                         ->whereHas('recepcion', function ($q) use ($detalle) {
@@ -72,11 +75,49 @@ class RecepcionController extends Controller
     
     public function getDetallesRecepcion($idRecepcion)
     {
-        $detalles = RecepcionDetalle::with(['variante.producto', 'variante.valores.atributo', 'bodega', 'ubicacion'])
+        $detalles = RecepcionDetalle::with([
+            'variante.producto',
+            'variante.valores.atributo',
+            'bodega',
+            'ubicacion'
+        ])
             ->where('id_recepcion', $idRecepcion)
             ->get();
         
-        return response()->json($detalles);
+        $result = $detalles->map(function ($detalle) {
+            $varianteData = null;
+            if ($detalle->variante) {
+                $varianteData = [
+                    'id_variante' => $detalle->variante->id_variante,
+                    'tiene_lote' => (bool) $detalle->variante->tiene_lote,
+                    'tiene_fecha_vencimiento' => (bool) $detalle->variante->tiene_fecha_vencimiento,
+                    'producto' => $detalle->variante->producto ? [
+                        'nombre' => $detalle->variante->producto->nombre
+                    ] : null,
+                    'valores' => $detalle->variante->valores->map(function ($v) {
+                        return [
+                            'valor' => $v->valor,
+                            'atributo' => $v->atributo ? [
+                                'nombre' => $v->atributo->nombre
+                            ] : null
+                        ];
+                    })->toArray()
+                ];
+            }
+            
+            return [
+                'id_detalle' => $detalle->id_detalle,
+                'id_variante' => $detalle->id_variante,
+                'cantidad_recibida' => $detalle->cantidad_recibida,
+                'lote' => $detalle->lote,
+                'fecha_vencimiento' => $detalle->fecha_vencimiento,
+                'variante' => $varianteData,
+                'bodega' => $detalle->bodega ? ['nombre' => $detalle->bodega->nombre] : null,
+                'ubicacion' => $detalle->ubicacion ? ['nombre' => $detalle->ubicacion->nombre] : null
+            ];
+        });
+        
+        return response()->json($result);
     }
     
     public function getRecepcion($idRecepcion)
@@ -160,7 +201,9 @@ class RecepcionController extends Controller
                     'id_bodega' => $detalle['id_bodega'],
                     'id_ubicacion' => $detalle['id_ubicacion'],
                     'cantidad_recibida' => $cantidadRecibida,
-'created_by' => 1,
+                    'lote' => $detalle['lote'] ?? null,
+                    'fecha_vencimiento' => $detalle['fecha_vencimiento'] ?? null,
+                    'created_by' => 1,
                 ]);
                 
                 $inventario = InventarioUbicacion::where('id_variante', $detalle['id_variante'])
@@ -169,13 +212,18 @@ class RecepcionController extends Controller
                 
                 if ($inventario) {
                     $inventario->stock_actual = $inventario->stock_actual + $cantidadRecibida;
+                    $inventario->lote = $detalle['lote'] ?? null;
+                    $inventario->fecha_vencimiento = $detalle['fecha_vencimiento'] ?? null;
                     $inventario->save();
                 } else {
                     InventarioUbicacion::create([
                         'id_variante' => $detalle['id_variante'],
+                        'id_bodega' => $detalle['id_bodega'],
                         'id_ubicacion' => $detalle['id_ubicacion'],
                         'stock_actual' => $cantidadRecibida,
                         'stock_reservado' => 0,
+                        'lote' => $detalle['lote'] ?? null,
+                        'fecha_vencimiento' => $detalle['fecha_vencimiento'] ?? null,
                     ]);
                 }
             }

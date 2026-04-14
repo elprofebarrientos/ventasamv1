@@ -19,6 +19,8 @@ return new class extends Migration
             $table->unsignedBigInteger('id_ubicacion');
 
             $table->decimal('cantidad_recibida', 12, 2);
+            $table->string('lote')->nullable();
+            $table->date('fecha_vencimiento')->nullable();
             $table->timestamps();
 
             $table->foreign('id_recepcion')->references('id_recepcion')->on('recepciones_compra')->cascadeOnDelete();

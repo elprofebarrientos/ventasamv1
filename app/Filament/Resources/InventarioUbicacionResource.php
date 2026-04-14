@@ -60,6 +60,13 @@ class InventarioUbicacionResource extends Resource
                     ->label('Stock Disponible')
                     ->numeric(decimalPlaces: 2)
                     ->sortable(),
+                Tables\Columns\TextColumn::make('lote')
+                    ->label('Lote')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('fecha_vencimiento')
+                    ->label('Vencimiento')
+                    ->date('d/m/Y')
+                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('ubicacion')

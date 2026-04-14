@@ -119,11 +119,13 @@ class CompraResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->visible(fn (Compra $record) => $record->abonos()->count() === 0 && $record->resultado_recepcion !== 'Completa'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn ($records) => $records->filter(fn ($record) => $record->abonos()->count() > 0 || $record->resultado_recepcion === 'Completa')->isEmpty()),
                 ]),
             ]);
     }

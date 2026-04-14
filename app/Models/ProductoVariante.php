@@ -57,6 +57,14 @@ class ProductoVariante extends Model
             ->withTimestamps();
     }
 
+    public function getAtributosFormateadosAttribute(): string
+    {
+        return $this->valores
+            ->map(fn ($v) => $v->atributo->nombre . ': ' . $v->valor)
+            ->filter()
+            ->implode(', ');
+    }
+
     /**
      * Get the impuestos for the variante.
      */

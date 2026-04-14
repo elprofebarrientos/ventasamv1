@@ -30,26 +30,26 @@ class CompraForm
                         ->searchable()
                         ->preload()
                         ->required()
-                        ->disabled(fn ($get) => static::hasAbonos($get)),
+                        ->disabled(fn ($get) => static::isLocked($get)),
 
                     TextInput::make('numero_factura')
                         ->label('Número de Factura')
                         ->maxLength(50)
-                        ->disabled(fn ($get) => static::hasAbonos($get)),
+                        ->disabled(fn ($get) => static::isLocked($get)),
 
                     TextInput::make('cufe')
                         ->label('CUFE (Código DIAN)')
                         ->maxLength(255)
-                        ->disabled(fn ($get) => static::hasAbonos($get)),
+                        ->disabled(fn ($get) => static::isLocked($get)),
 
                     DatePicker::make('fecha_emision')
                         ->label('Fecha de Emisión')
                         ->required()
-                        ->disabled(fn ($get) => static::hasAbonos($get)),
+                        ->disabled(fn ($get) => static::isLocked($get)),
 
                     DatePicker::make('fecha_vencimiento')
                         ->label('Fecha de Vencimiento')
-                        ->disabled(fn ($get) => static::hasAbonos($get)),
+                        ->disabled(fn ($get) => static::isLocked($get)),
                 ]),
 
             Section::make('Detalle de Productos')
@@ -62,9 +62,10 @@ class CompraForm
                             Select::make('id_variante')
                                 ->label('Producto / Variante')
                                 ->options(fn ($get) => static::getAvailableVariants($get))
+                                ->getSearchResultsUsing(fn (string $search) => static::searchVariants($search))
                                 ->searchable()
                                 ->required()
-                                ->disabled(fn ($get) => static::hasAbonos($get)),
+                                ->disabled(fn ($get) => static::isLocked($get)),
 
                             TextInput::make('cantidad')
                                 ->label('Cantidad')
@@ -73,7 +74,7 @@ class CompraForm
                                 ->minValue(0.01)
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(fn ($set, $get) => static::recalcularTotales($set, $get))
-                                ->disabled(fn ($get) => static::hasAbonos($get)),
+                                ->disabled(fn ($get) => static::isLocked($get)),
 
                             TextInput::make('costo_unitario')
                                 ->label('Costo Unitario (sin IVA)')
@@ -82,7 +83,7 @@ class CompraForm
                                 ->required()
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(fn ($set, $get) => static::recalcularTotales($set, $get))
-                                ->disabled(fn ($get) => static::hasAbonos($get)),
+                                ->disabled(fn ($get) => static::isLocked($get)),
 
                             TextInput::make('porcentaje_iva')
                                 ->label('% IVA')
@@ -91,14 +92,14 @@ class CompraForm
                                 ->default(0)
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(fn ($set, $get) => static::recalcularTotales($set, $get))
-                                ->disabled(fn ($get) => static::hasAbonos($get)),
+                                ->disabled(fn ($get) => static::isLocked($get)),
                         ])
                         ->columns(4)
                         ->addActionLabel('Agregar producto')
                         ->live()
                         ->afterStateUpdated(fn ($set, $get) => static::recalcularTotalesFromRoot($set, $get))
-                        ->disabled(fn ($get) => static::hasAbonos($get))
-                        ->deletable(fn ($get) => !static::hasAbonos($get)),
+                        ->disabled(fn ($get) => static::isLocked($get))
+                        ->deletable(fn ($get) => !static::isLocked($get)),
                 ]),
 
             Section::make('Totales')
@@ -126,14 +127,14 @@ class CompraForm
                         ->numeric()
                         ->prefix('$')
                         ->default(0)
-                        ->disabled(fn ($get) => static::hasAbonos($get)),
+                        ->disabled(fn ($get) => static::isLocked($get)),
 
                     TextInput::make('valor_reteica')
                         ->label('ReteICA')
                         ->numeric()
                         ->prefix('$')
                         ->default(0)
-                        ->disabled(fn ($get) => static::hasAbonos($get)),
+                        ->disabled(fn ($get) => static::isLocked($get)),
 
                     TextInput::make('total_neto_pagar')
                         ->label('Total Neto a Pagar')
@@ -151,14 +152,12 @@ class CompraForm
      */
     private static function hasAbonos(Get $get): bool
     {
-        // Get the record ID from the form
         $recordId = $get('id_compra');
 
         if (!$recordId) {
             return false;
         }
 
-        // Check if the compra has any abonos
         $compra = Compra::find($recordId);
 
         if (!$compra) {
@@ -166,6 +165,34 @@ class CompraForm
         }
 
         return $compra->abonos()->count() > 0;
+    }
+
+    /**
+     * Check if the purchase has complete reception
+     */
+    private static function hasRecepcionCompleta(Get $get): bool
+    {
+        $recordId = $get('id_compra');
+
+        if (!$recordId) {
+            return false;
+        }
+
+        $compra = Compra::find($recordId);
+
+        if (!$compra) {
+            return false;
+        }
+
+        return $compra->resultado_recepcion === 'Completa';
+    }
+
+    /**
+     * Check if the purchase cannot be modified (has abonos or complete reception)
+     */
+    private static function isLocked(Get $get): bool
+    {
+        return static::hasAbonos($get) || static::hasRecepcionCompleta($get);
     }
 
     /**
@@ -221,8 +248,49 @@ class CompraForm
                 ? "{$productName} - {$attributeValues}"
                 : $productName;
 
-            return [$variant->id_variante => $displayName];
+            return [(string) $variant->id_variante => $displayName];
         });
+    }
+
+    /**
+     * Search variants by product name or attribute values
+     */
+    private static function searchVariants(string $search): array
+    {
+        $variants = ProductoVariante::with(['producto', 'valores.atributo'])
+            ->where('activo', true)
+            ->whereHas('producto', function ($query) use ($search) {
+                $query->where('nombre', 'like', "%{$search}%");
+            })
+            ->orWhereHas('valores', function ($query) use ($search) {
+                $query->where('valor', 'like', "%{$search}%");
+            })
+            ->orWhereHas('valores.atributo', function ($query) use ($search) {
+                $query->where('nombre', 'like', "%{$search}%");
+            })
+            ->get();
+
+        $results = [];
+        foreach ($variants as $variant) {
+            $productName = $variant->producto->nombre ?? 'Producto sin nombre';
+
+            $attributeValues = $variant->valores
+                ->map(function ($valor) {
+                    $atributoNombre = $valor->atributo->nombre ?? '';
+                    $valorTexto = $valor->valor ?? '';
+                    return "{$atributoNombre}: {$valorTexto}";
+                })
+                ->filter()
+                ->implode(', ');
+
+            $displayName = $attributeValues
+                ? "{$productName} - {$attributeValues}"
+                : $productName;
+
+            $results[(string) $variant->id_variante] = $displayName;
+        }
+
+        return $results;
     }
 
     /**

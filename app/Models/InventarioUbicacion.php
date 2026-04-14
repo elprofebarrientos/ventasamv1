@@ -38,7 +38,7 @@ class InventarioUbicacion extends Model
 
     public function variante(): BelongsTo
     {
-        return $this->belongsTo(ProductoVariante::class, 'id_variante', 'id_variante');
+        return $this->belongsTo(ProductoVariante::class, 'id_variante', 'id_variante')->withTrashed();
     }
 
     public function bodega(): BelongsTo

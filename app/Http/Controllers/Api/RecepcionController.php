@@ -56,17 +56,38 @@ class RecepcionController extends Controller
     
     public function getRecepcionesPorCompra($compraId)
     {
-        $recepciones = RecepcionCompra::with(['detalles'])
+        $recepciones = RecepcionCompra::with(['detalles.variante.producto', 'detalles.variante.valores.atributo'])
             ->where('id_compra', $compraId)
             ->orderBy('fecha', 'desc')
             ->get()
             ->map(function ($recepcion) {
+                $detallesFormateados = $recepcion->detalles->map(function ($detalle) {
+                    $atributos = '';
+                    if ($detalle->variante && $detalle->variante->valores) {
+                        $atributos = $detalle->variante->valores->map(function ($v) {
+                            return ($v->atributo ? $v->atributo->nombre : '') . ': ' . ($v->valor ?? '');
+                        })->filter()->implode(', ');
+                    }
+                    
+                    $nombreProducto = $detalle->variante && $detalle->variante->producto 
+                        ? $detalle->variante->producto->nombre 
+                        : 'Producto no encontrado';
+                    
+                    return [
+                        'id_detalle' => $detalle->id_detalle,
+                        'cantidad_recibida' => $detalle->cantidad_recibida,
+                        'producto_nombre' => $nombreProducto,
+                        'atributos' => $atributos,
+                        'sku' => $detalle->variante ? $detalle->variante->sku : '',
+                    ];
+                });
+                
                 return [
                     'id_recepcion' => $recepcion->id_recepcion,
                     'fecha' => $recepcion->fecha,
                     'observacion' => $recepcion->observacion,
                     'estado' => $recepcion->estado,
-                    'detalles' => $recepcion->detalles->toArray(),
+                    'detalles' => $detallesFormateados,
                 ];
             });
         

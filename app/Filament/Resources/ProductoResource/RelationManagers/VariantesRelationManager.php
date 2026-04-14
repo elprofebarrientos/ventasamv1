@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\ProductoResource\RelationManagers;
 
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas\Schema;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Actions;
 use App\Models\Atributo;
 use App\Models\AtributoValor;
 
@@ -63,15 +63,15 @@ class VariantesRelationManager extends RelationManager
                             ->default(0),
                     ])
                     ->columns(3),
-                Forms\Components\Repeater::make('atributos_valores')
+                Forms\Components\Repeater::make('atributos_seleccionados')
                     ->label('Atributos y Valores')
                     ->columnSpan(3)
                     ->schema([
                         Forms\Components\Select::make('id_atributo')
                             ->label('Atributo')
                             ->options(function (callable $get, $livewire) {
-                                $atributosValores = $livewire->data['atributos_valores'] ?? [];
-                                $usedAtributos = collect($atributosValores)
+                                $atributosSeleccionados = $livewire->data['atributos_seleccionados'] ?? [];
+                                $usedAtributos = collect($atributosSeleccionados)
                                     ->pluck('id_atributo')
                                     ->filter()
                                     ->toArray();
@@ -111,14 +111,12 @@ class VariantesRelationManager extends RelationManager
                                         continue;
                                     }
                                     
-                                    // Check for duplicate atributo
                                     if (in_array($item['id_atributo'], $seenAtributos)) {
                                         $fail('No se permiten atributos duplicados.');
                                         return;
                                     }
                                     $seenAtributos[] = $item['id_atributo'];
                                     
-                                    // Check for duplicate valor
                                     if (in_array($item['id_valor'], $seenValores)) {
                                         $fail('No se permiten valores duplicados en los atributos.');
                                         return;
@@ -134,6 +132,7 @@ class VariantesRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->with('valores'))
             ->columns([
                 Tables\Columns\TextColumn::make('id_variante')
                     ->label('ID')
@@ -175,19 +174,30 @@ class VariantesRelationManager extends RelationManager
                 Actions\CreateAction::make()
                     ->label('Nueva Variante')
                     ->after(function (array $data, $record) {
-                        $atributosValores = $data['atributos_valores'] ?? [];
+                        $atributosSeleccionados = $data['atributos_seleccionados'] ?? [];
                         $existingValorIds = $record->valores()->pluck('atributo_valor.id_valor')->toArray();
-                        foreach ($atributosValores as $item) {
+                        $attachData = [];
+                        foreach ($atributosSeleccionados as $item) {
                             if (isset($item['id_valor']) && !in_array($item['id_valor'], $existingValorIds)) {
-                                $record->valores()->attach($item['id_valor']);
+                                $attachData[$item['id_valor']] = [
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ];
                             }
+                        }
+                        if (!empty($attachData)) {
+                            $record->valores()->syncWithoutDetaching($attachData);
                         }
                     }),
             ])
             ->actions([
                 Actions\EditAction::make()
+                    ->using(function (Actions\EditAction $action, $record) {
+                        $record->load('valores');
+                        return $action->fillForm($record);
+                    })
                     ->mutateFormDataUsing(function (array $data, $record): array {
-                        $data['atributos_valores'] = $record->valores->map(function ($valor) {
+                        $data['atributos_seleccionados'] = $record->valores->map(function ($valor) {
                             return [
                                 'id_atributo' => $valor->id_atributo,
                                 'id_valor' => $valor->id_valor,
@@ -196,16 +206,17 @@ class VariantesRelationManager extends RelationManager
                         return $data;
                     })
                     ->after(function (array $data, $record) {
-                        $atributosValores = $data['atributos_valores'] ?? [];
-                        $syncData = [];
-                        $seen = [];
-                        foreach ($atributosValores as $item) {
-                            if (isset($item['id_valor']) && !in_array($item['id_valor'], $seen)) {
-                                $syncData[] = $item['id_valor'];
-                                $seen[] = $item['id_valor'];
+                        $atributosSeleccionados = $data['atributos_seleccionados'] ?? [];
+                        $attachData = [];
+                        foreach ($atributosSeleccionados as $item) {
+                            if (isset($item['id_valor'])) {
+                                $attachData[$item['id_valor']] = [
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ];
                             }
                         }
-                        $record->valores()->syncWithoutDetaching($syncData);
+                        $record->valores()->sync($attachData);
                     }),
             ]);
     }

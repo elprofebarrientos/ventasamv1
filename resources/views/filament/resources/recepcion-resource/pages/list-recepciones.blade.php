@@ -526,12 +526,23 @@ detalles.forEach(function(detalle, index) {
             }
             
             recepciones.forEach(function(recepcion) {
+                let productosTexto = '';
+                if (recepcion.detalles && recepcion.detalles.length > 0) {
+                    productosTexto = recepcion.detalles.map(function(d) {
+                        let nombre = d.producto_nombre || 'Producto';
+                        let attrs = d.atributos ? ' (' + d.atributos + ')' : '';
+                        return nombre + attrs;
+                    }).join('<br>');
+                } else {
+                    productosTexto = 'Sin productos';
+                }
+                
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #e5e7eb';
                 row.innerHTML = `
                     <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${recepcion.fecha}</td>
                     <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${recepcion.observacion || 'Sin observación'}</td>
-                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${recepcion.detalles.length}</td>
+                    <td style="padding: 0.75rem; font-size: 0.875rem; color: #111827;">${productosTexto}</td>
                     <td style="padding: 0.75rem;">
                         <button type="button" class="btn-ver-detalle" data-id="${recepcion.id_recepcion}" style="background-color: #2563eb; color: white; padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 500; border: none; cursor: pointer;">
                             Ver Detalle

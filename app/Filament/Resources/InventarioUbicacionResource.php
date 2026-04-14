@@ -29,7 +29,7 @@ class InventarioUbicacionResource extends Resource
 
     protected static bool $canDelete = false;
 
-    public static function table(Table $table): Table
+public static function table(Table $table): Table
     {
         return $table
             ->columns([
@@ -37,16 +37,15 @@ class InventarioUbicacionResource extends Resource
                     ->label('Producto')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('variante.atributos_formateados')
+                    ->label('Atributos'),
                 Tables\Columns\TextColumn::make('variante.sku')
-                    ->label('SKU')
-                    ->searchable(),
+                    ->label('SKU'),
                 Tables\Columns\TextColumn::make('ubicacion.bodega.nombre')
                     ->label('Bodega')
-                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('ubicacion.nombre')
                     ->label('Ubicación')
-                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock_actual')
                     ->label('Stock Actual')
@@ -61,8 +60,7 @@ class InventarioUbicacionResource extends Resource
                     ->numeric(decimalPlaces: 2)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('lote')
-                    ->label('Lote')
-                    ->searchable(),
+                    ->label('Lote'),
                 Tables\Columns\TextColumn::make('fecha_vencimiento')
                     ->label('Vencimiento')
                     ->date('d/m/Y')

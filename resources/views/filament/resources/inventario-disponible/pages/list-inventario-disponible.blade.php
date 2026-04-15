@@ -9,7 +9,6 @@ $inventario = InventarioDisponible::with(['variante.producto', 'variante.valores
 
 <x-filament-panels::page>
     <div style="background-color: #f9fafb; min-height: 100vh; padding: 1.5rem;">
-        <meta http-equiv="refresh" content="30">
         <div style="max-width: 72rem; margin: 0 auto;">
             <div style="background-color: white; border-radius: 0.75rem; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <div style="padding: 1.5rem; border-bottom: 1px solid #e5e7eb;">
@@ -64,13 +63,13 @@ $inventario = InventarioDisponible::with(['variante.producto', 'variante.valores
                                         <div style="font-size: 0.875rem; color: #374151;">{{ $item->variante->sku ?? 'N/A' }}</div>
                                     </td>
                                     <td style="padding: 1.25rem; text-align: right;">
-                                        <div style="font-size: 0.875rem; font-weight: 600; color: #111827;">{{ number_format($item->stock_actual, 2, ',', '.') }}</div>
+                                        <div style="font-size: 0.875rem; font-weight: 600; color: #111827;">{{ number_format($item->stock_actual, 0, ',', '.') }}</div>
                                     </td>
                                     <td style="padding: 1.25rem; text-align: right;">
-                                        <div style="font-size: 0.875rem; color: #4b5563;">{{ number_format($item->stock_reservado, 2, ',', '.') }}</div>
+                                        <div style="font-size: 0.875rem; color: #4b5563;">{{ number_format($item->stock_reservado, 0, ',', '.') }}</div>
                                     </td>
                                     <td style="padding: 1.25rem; text-align: right;">
-                                        <div style="font-size: 0.875rem; font-weight: 700; color: {{ $item->stock_disponible > 0 ? '#059669' : '#dc2626' }};">{{ number_format($item->stock_disponible, 2, ',', '.') }}</div>
+                                        <div style="font-size: 0.875rem; font-weight: 700; color: {{ $item->stock_disponible > 0 ? '#059669' : '#dc2626' }};">{{ number_format($item->stock_disponible, 0, ',', '.') }}</div>
                                     </td>
                                     <td style="padding: 1.25rem;">
                                         <div style="font-size: 0.875rem; color: #4b5563;">{{ $item->ultima_actualizacion ? $item->ultima_actualizacion->format('Y-m-d H:i') : 'N/A' }}</div>

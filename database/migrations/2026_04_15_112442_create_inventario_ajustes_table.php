@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id('id_ajuste');
 
             $table->unsignedBigInteger('id_bodega');
+            $table->unsignedBigInteger('id_ubicacion');
             $table->unsignedBigInteger('id_variante');
             $table->decimal('cantidad', 12, 2);
             $table->string('motivo')->default('error_recepcion');
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('id_bodega')->references('id_bodega')->on('bodega')->cascadeOnDelete();
+            $table->foreign('id_ubicacion')->references('id_ubicacion')->on('ubicaciones')->cascadeOnDelete();
             $table->foreign('id_variante')->references('id_variante')->on('producto_variante')->cascadeOnDelete();
         });
     }

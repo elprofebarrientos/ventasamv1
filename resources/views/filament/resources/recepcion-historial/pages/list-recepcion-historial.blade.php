@@ -76,20 +76,12 @@
                                     </span>
                                 </td>
                                 <td style="padding: 1.25rem; text-align: right;">
-                                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
-                                        <button 
-                                            type="button"
-                                            onclick="verRecepciones({{ $compra->id_compra }})"
-                                            style="background-color: #6b7280; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer;">
-                                            Ver
-                                        </button>
-                                        <button 
-                                            type="button"
-                                            onclick="verDetalle({{ $compra->id_compra }})"
-                                            style="background-color: #2563eb; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer;">
-                                            Ver Detalle
-                                        </button>
-                                    </div>
+                                    <button 
+                                        type="button"
+                                        onclick="verDetalle({{ $compra->id_compra }})"
+                                        style="background-color: #2563eb; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer;">
+                                        Ver Detalle
+                                    </button>
                                 </td>
                             </tr>
                             @endforeach
@@ -244,7 +236,7 @@
         }
         
         function verDetalle(compraId) {
-            fetch('/api/compras/' + compraId + '/detalles')
+            fetch('/api/compras/' + compraId + '/detalles/true')
                 .then(response => {
                     console.log('Response status:', response.status);
                     return response.json();
@@ -290,8 +282,9 @@
                     
                     detalle.recepciones.forEach(function(rec) {
                         let recUbicacion = rec.ubicacion || 'N/A';
+                        let fechaRec = rec.fecha_recepcion || '';
                         recepcionesHtml += '<div style="font-size: 0.75rem; margin-bottom: 0.25rem;">';
-                        recepcionesHtml += Math.round(parseFloat(rec.cantidad_recibida)) + ' - ' + recUbicacion;
+                        recepcionesHtml += Math.round(parseFloat(rec.cantidad_recibida)) + ' - ' + recUbicacion + (fechaRec ? ' - ' + fechaRec : '');
                         recepcionesHtml += '</div>';
                     });
                 }

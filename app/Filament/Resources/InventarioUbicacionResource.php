@@ -39,8 +39,9 @@ public static function table(Table $table): Table
                     ->sortable(),
                 Tables\Columns\TextColumn::make('variante.atributos_formateados')
                     ->label('Atributos'),
-                Tables\Columns\TextColumn::make('variante.sku')
-                    ->label('SKU'),
+                Tables\Columns\TextColumn::make('ubicacion.bodega.sucursal.nombre')
+                    ->label('Sucursal')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('ubicacion.bodega.nombre')
                     ->label('Bodega')
                     ->sortable(),

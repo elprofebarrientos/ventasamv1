@@ -7,18 +7,27 @@ use App\Models\Compra;
 use App\Models\RecepcionCompra;
 use App\Models\RecepcionDetalle;
 use App\Models\InventarioUbicacion;
+use App\Models\InventarioDisponible;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class RecepcionController extends Controller
 {
-    public function getDetalles($compraId)
+    public function getDetalles($compraId, $incluirRecibidos = false)
     {
         try {
             $detalles = \App\Models\CompraDetalle::with(['variante.producto', 'variante.valores.atributo'])
                 ->where('id_compra', $compraId)
-                ->get()
-                ->map(function ($detalle) {
+                ->get();
+            
+            if (!$incluirRecibidos) {
+                $detalles = $detalles->filter(function ($detalle) {
+                    $detalle->cantidad_pendiente = floatval($detalle->cantidad) - floatval($detalle->cantidad_recibida ?? 0);
+                    return $detalle->cantidad_pendiente > 0;
+                });
+            }
+            
+            return $detalles->map(function ($detalle) {
                     $detalle->cantidad_pendiente = floatval($detalle->cantidad) - floatval($detalle->cantidad_recibida ?? 0);
                     
                     $detalle->variante_tiene_lote = $detalle->variante ? (bool) $detalle->variante->tiene_lote : false;
@@ -42,6 +51,8 @@ class RecepcionController extends Controller
                             'bodega' => $rd->bodega ? $rd->bodega->nombre : null,
                             'ubicacion' => $rd->ubicacion ? $rd->ubicacion->nombre : null,
                             'sucursal' => $sucursal,
+                            'fecha_vencimiento' => $rd->fecha_vencimiento,
+                            'fecha_recepcion' => $rd->recepcion ? \Carbon\Carbon::parse($rd->recepcion->fecha)->format('Y-m-d') : null,
                         ];
                     });
                     
@@ -212,8 +223,6 @@ class RecepcionController extends Controller
                 
                 if (($cantidadRecibidaAnterior + $cantidadRecibida) < $cantidadComprada) {
                     $resultadoRecepcion = 'Incompleta';
-                } elseif (($cantidadRecibidaAnterior + $cantidadRecibida) >= $cantidadComprada) {
-                    $resultadoRecepcion = 'Completa';
                 }
                 
                 RecepcionDetalle::create([
@@ -228,6 +237,7 @@ class RecepcionController extends Controller
                 ]);
                 
                 $inventario = InventarioUbicacion::where('id_variante', $detalle['id_variante'])
+                    ->where('id_bodega', $detalle['id_bodega'])
                     ->where('id_ubicacion', $detalle['id_ubicacion'])
                     ->first();
                 
@@ -247,10 +257,23 @@ class RecepcionController extends Controller
                         'fecha_vencimiento' => $detalle['fecha_vencimiento'] ?? null,
                     ]);
                 }
+                
+                InventarioDisponible::actualizarDesdeUbicacion($detalle['id_variante']);
             }
             
-            $compra = Compra::find($request->id_compra);
-            $compra->resultado_recepcion = $resultadoRecepcion;
+            $compra = Compra::with('detalles')->find($request->id_compra);
+            
+            $todosRecibidos = true;
+            foreach ($compra->detalles as $detalle) {
+                $cantidadComprada = floatval($detalle->cantidad);
+                $cantidadRecibida = floatval($detalle->cantidad_recibida ?? 0);
+                if ($cantidadRecibida < $cantidadComprada) {
+                    $todosRecibidos = false;
+                    break;
+                }
+            }
+            
+            $compra->resultado_recepcion = $todosRecibidos ? 'Completa' : 'Incompleta';
             $compra->save();
             
             DB::commit();

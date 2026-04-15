@@ -10,7 +10,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/api/compras/{compraId}/detalles', [RecepcionController::class, 'getDetalles']);
+Route::get('/api/compras/{compraId}/detalles/{incluirRecibidos?}', [RecepcionController::class, 'getDetalles']);
 Route::post('/api/recepciones/store', [RecepcionController::class, 'store'])->name('api.recepciones.store');
 Route::get('/api/recepciones/por-compra/{compraId}', [RecepcionController::class, 'getRecepcionesPorCompra']);
 Route::get('/api/recepciones/{idRecepcion}/detalles', [RecepcionController::class, 'getDetallesRecepcion']);
